@@ -374,11 +374,7 @@ sc = rectSect(0.4, 0.6, 25., ds)
 sc.basis.ε1.Z = -0.0008
 sc.basis.ε2.Z = 0.0035
 sc.basis.ε3.Z = -0.0006
-bet = diagrB(25, 1, 2)
-arm = diagrA('A500')
-sc.beton = bet
-sc.armatura = arm
 
 #%%
-ft=sc.functional('C',True)
+f=sc.functional('N')
 #%%
