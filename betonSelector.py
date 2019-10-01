@@ -1,9 +1,8 @@
 # %%
-#from sympy import Function, S, oo
 import pandas as pd
 import numpy as np
 import plotly.express as px
-from scipy.interpolate import interp1d
+from linearInterpolation import linterp1d
 
 
 # %%
@@ -11,37 +10,35 @@ from scipy.interpolate import interp1d
 class diagrB:
     # конструктор
     def __init__(self, classB, typdiagB, vlag):
-        s = self.selectBeton(typdiagB, classB, vlag)
-        C = s[s.Action == 'C']
-        CL = s[s.Action == 'CL']
-        N = s[s.Action == 'N']
-        NL = s[s.Action == 'NL']
+        self.classB = classB
+        self.type = typdiagB
+        self.vlag = vlag
+        self.src = self.selectBeton(typdiagB, classB, vlag)
+        self.frameC = self.src[self.src.Action == 'C']
+        self.frameCL = self.src[self.src.Action == 'CL']
+        self.frameN = self.src[self.src.Action == 'N']
+        self.frameNL = self.src[self.src.Action == 'NL']
 
-        self.frameC = C
-        self.frameCL = CL
-        self.frameN = N
-        self.frameNL = NL
+        self.epsC = self.frameC.ε.to_numpy()
+        self.sigC = self.frameC.σ.to_numpy().astype(float)
 
-        self.epsC = C.ε.to_numpy()
-        self.sigC = C.σ.to_numpy().astype(float)
+        self.epsCL = self.frameCL.ε.to_numpy()
+        self.sigCL = self.frameCL.σ.to_numpy().astype(float)
 
-        self.epsCL = CL.ε.to_numpy()
-        self.sigCL = CL.σ.to_numpy().astype(float)
+        self.epsN = self.frameN.ε.to_numpy()
+        self.sigN = self.frameN.σ.to_numpy().astype(float)
 
-        self.epsN = N.ε.to_numpy()
-        self.sigN = N.σ.to_numpy().astype(float)
+        self.epsNL = self.frameNL.ε.to_numpy()
+        self.sigNL = self.frameNL.σ.to_numpy().astype(float)
 
-        self.epsNL = NL.ε.to_numpy()
-        self.sigNL = NL.σ.to_numpy().astype(float)
-
-        self.int_C = interp1d(self.epsC, self.sigC)
-        self.int_CL = interp1d(self.epsCL, self.sigCL)
-        self.int_N = interp1d(self.epsN, self.sigN)
-        self.int_NL = interp1d(self.epsNL, self.sigNL)
+        self.int_C = linterp1d(self.epsC, self.sigC)
+        self.int_CL = linterp1d(self.epsCL, self.sigCL)
+        self.int_N = linterp1d(self.epsN, self.sigN)
+        self.int_NL = linterp1d(self.epsNL, self.sigNL)
     
     def selectBeton(self, t, c, v):
-        self.src = pd.read_csv('Бетон_диаграммы.csv', ';')
-        return self.src.query('Vlaga == {} and Class=={} and Type =={}'.format(v, c, t))
+        src = pd.read_csv('Бетон_диаграммы.csv', ';')
+        return src.query('Vlaga == {} and Class=={} and Type =={}'.format(v, c, t))
 
     def plotDiagr(self):
         c = self.src[self.src.Action != "N"]
@@ -70,7 +67,7 @@ class diagrB:
             elif e > self.epsC[self.epsC.size-1]:
                 sigB_C = self.sigC[self.sigC.size-1]
             else:
-                sigB_C = self.int_C(e)*1.
+                sigB_C = self.int_C.linterp(e)
             return sigB_C
         elif act == 'CL':
             sigB_CL = 0.0
@@ -79,7 +76,7 @@ class diagrB:
             elif e > self.epsCL[self.epsCL.size-1]:
                 sigB_CL = self.sigCL[self.sigCL.size-1]
             else:
-                sigB_CL = self.int_CL(e)*1.
+                sigB_CL = self.int_CL.linterp(e)
             return sigB_CL
         elif act == 'N':
             sigB_N = 0.0
@@ -88,7 +85,7 @@ class diagrB:
             elif e > self.epsN[self.epsN.size-1]:
                 sigB_N = self.sigN[self.sigN.size-1]
             else:
-                sigB_N = self.int_N(e)*1.
+                sigB_N = self.int_N.linterp(e)
             return sigB_N
         elif act == 'NL':
             sigB_NL = 0.0
@@ -97,7 +94,7 @@ class diagrB:
             elif e > self.epsNL[self.epsNL.size-1]:
                 sigB_NL = self.sigNL[self.sigNL.size-1]
             else:
-                sigB_NL = self.int_NL(e) * 1.
+                sigB_NL = self.int_NL.linterp(e)
             return sigB_NL
 
 # %%
