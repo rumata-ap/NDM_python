@@ -198,7 +198,7 @@ class contour:
         for i in range(0, xn):
             Y.append(ly)
 
-        return np.array(X), np.array(Y).T, (b / xn) * (h / yn)
+        return np.array(X).reshape(xn*yn,), np.array(Y).T.reshape(xn*yn,), (b / xn) * (h / yn)
 
 
 # %%
