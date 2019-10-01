@@ -1,0 +1,79 @@
+import numpy as np
+import math
+
+# %%
+
+
+class point3d:
+    def __init__(self, x=0., y=0., z=0.):
+        self.X = x
+        self.Y = y
+        self.Z = z
+
+    def toList(self):
+        return [self.X, self.Y, self.Z]
+
+    def copy(self):
+        return point3d(self.X, self.Y, self.Z)
+
+# %%
+
+
+class vector3d:
+    def __init__(self, pt1: point3d, pt2: point3d):
+        self.vX = pt2.X - pt1.X
+        self.vY = pt2.Y - pt1.Y
+        self.vZ = pt2.Z - pt1.Z
+        self.norma = math.sqrt(self.vX ** 2 + self.vY ** 2 + self.vZ ** 2)
+
+    def toList(self):
+        return [self.vX, self.vY, self.vZ]
+
+    def toNumpy(self):
+        return np.array([self.vX, self.vY, self.vZ])
+
+# %%
+
+
+class plane:
+    def __init__(self, pt1: point3d, pt2: point3d, pt3: point3d):
+        V1 = vector3d(pt1, pt2)
+        V2 = vector3d(pt1, pt3)
+
+        self.A = V1.vY * V2.vZ - V1.vZ * V2.vY
+        self.B = V1.vZ * V2.vX - V1.vX * V2.vZ
+        self.C = V1.vX * V2.vY - V1.vY * V2.vX
+        self.D = -self.A * pt1.X - self.B * pt1.Y - self.C * pt1.Z
+
+    def inerpolate(self, x: float, y: float):
+        return (-self.A * x - self.B * y - self.D) / self.C
+
+# %%
+
+
+class line2d:
+    def __init__(self, pt1: point3d, pt2: point3d):
+        self.start = pt1
+        self.end = pt2
+        self.V = vector3d(pt1, pt2)
+        self.A = pt1.Y - pt2.Y
+        self.Az = pt1.Z - pt2.Z
+        self.B = pt2.X - pt1.X
+        self.C = pt1.X * pt2.Y - pt1.Y * pt2.X
+        self.Cz = pt1.X * pt2.Z - pt1.Z * pt2.X
+        self.L = math.sqrt(self.A * self.A + self.B * self.B)
+
+    def interpolateY(self, x: float):
+        if self.B == 0.:
+            return np.inf
+        return (-self.A * x - self.C) / self.B
+
+    def interpolateZ(self, x: float):
+        if self.B == 0.:
+            return np.inf
+        return (-self.Az * x - self.Cz) / self.B
+
+    def interpolateEps(self, x):
+        return point3d(self.interpolateY(x), self.interpolateZ(x), x)
+
+# %%
