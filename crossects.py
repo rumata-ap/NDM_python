@@ -233,22 +233,22 @@ class armTmpl_3x3:
 
 #%%
 class LoadNDM:
-    C={'N':0., 'Mx':0., 'My':0.}
-    CL={'N':0., 'Mx':0., 'My':0.}
-    N={'N':0., 'Mx':0., 'My':0.}
-    NL = {'N': 0., 'Mx': 0., 'My': 0.}
+    N = 0.
+    Mx = 0.
+    My = 0.
 #%%
 
 
 class CrossSect:
+    loads = {'C': [], 'CL': [], 'N': [], 'NL': []}
+
     def functional(self, act='C', trg=False, nt=60):
-        print('Базовый функционал')
-        return 'Базовый функционал'
+        raise NotImplementedError
 
 # %%
 
 
-class rectSect(CrossSect):
+class rectSect(CrossSect):  
     def __init__(self, b: float, h: float, sl: float,
                  atmpl: armTmpl_3x3, n=10, m=10):
         self.b = b
