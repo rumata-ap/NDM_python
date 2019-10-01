@@ -231,11 +231,24 @@ class armTmpl_3x3:
         self.ds = ds*0.001
         self.As = self.ds * self.ds * pi * 0.25 * ns
 
+#%%
+class LoadNDM:
+    C={'N':0., 'Mx':0., 'My':0.}
+    CL={'N':0., 'Mx':0., 'My':0.}
+    N={'N':0., 'Mx':0., 'My':0.}
+    NL = {'N': 0., 'Mx': 0., 'My': 0.}
+#%%
+
+
+class CrossSect:
+    def functional(self, act='C', trg=False, nt=60):
+        print('Базовый функционал')
+        return 'Базовый функционал'
 
 # %%
 
 
-class rectSect:
+class rectSect(CrossSect):
     def __init__(self, b: float, h: float, sl: float,
                  atmpl: armTmpl_3x3, n=10, m=10):
         self.b = b
@@ -366,7 +379,7 @@ class rectSect:
         Mx = intBX - intBAX + intAX
         My = intBY - intBAY + intAY
         return N, Mx, My
-
+        
         
 # %%
 ds = armTmpl_3x3(np.array([[20., 0., 20.], [0., 0., 0.], [20., 0., 20.]]))
@@ -377,4 +390,9 @@ sc.basis.ε3.Z = -0.0006
 
 #%%
 f=sc.functional('N')
+#%%
+def test(arg:CrossSect):
+    return arg.functional()
+
+
 #%%
