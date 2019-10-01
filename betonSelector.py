@@ -61,45 +61,53 @@ class diagrB:
         self.int_N = interp1d(self.epsN, self.sigN)
         self.int_NL = interp1d(self.epsNL, self.sigNL)
 
-    def sig(self, e):
+    def actList(self, n, act='C'):
+        res = []
+        for i in range(0, n):
+            res.append(act)
+        return res
+
+    def sig(self, e, act='C'):
         """
         Возвращает кортеж напряжений в бетоне согласно 
         функции 'σ(ε)' при различных действиях нагрузки (C, CL, N, NL).
         Параметр 'e' - значение деформации.
         """
-        sigB_C = 0.0
-        if e < self.epsC[0]:
-            sigB_C = 0
-        elif e > self.epsC[self.epsC.size-1]:
-            sigB_C = self.sigC[self.sigC.size-1]
-        else:
-            sigB_C = self.int_C(e)*1.
-
-        sigB_CL = 0.0
-        if e < self.epsCL[0]:
-            sigB_CL = 0
-        elif e > self.epsCL[self.epsCL.size-1]:
-            sigB_CL = self.sigCL[self.sigCL.size-1]
-        else:
-            sigB_CL = self.int_CL(e)*1.
-
-        sigB_N = 0.0
-        if e < self.epsN[0]:
-            sigB_N = 0
-        elif e > self.epsN[self.epsN.size-1]:
-            sigB_N = self.sigN[self.sigN.size-1]
-        else:
-            sigB_N = self.int_N(e)*1.
-
-        sigB_NL = 0.0
-        if e < self.epsNL[0]:
-            sigB_NL = 0
-        elif e > self.epsNL[self.epsNL.size-1]:
-            sigB_NL = self.sigNL[self.sigNL.size-1]
-        else:
-            sigB_NL = self.int_NL(e)*1.
-
-        return sigB_C, sigB_CL, sigB_N, sigB_NL
+        if act == 'C':
+            sigB_C = 0.0
+            if e < self.epsC[0]:
+                sigB_C = 0
+            elif e > self.epsC[self.epsC.size-1]:
+                sigB_C = self.sigC[self.sigC.size-1]
+            else:
+                sigB_C = self.int_C(e)*1.
+            return sigB_C
+        elif act == 'CL':
+            sigB_CL = 0.0
+            if e < self.epsCL[0]:
+                sigB_CL = 0
+            elif e > self.epsCL[self.epsCL.size-1]:
+                sigB_CL = self.sigCL[self.sigCL.size-1]
+            else:
+                sigB_CL = self.int_CL(e)*1.
+            return sigB_CL
+        elif act == 'N':
+            sigB_N = 0.0
+            if e < self.epsN[0]:
+                sigB_N = 0
+            elif e > self.epsN[self.epsN.size-1]:
+                sigB_N = self.sigN[self.sigN.size-1]
+            else:
+                sigB_N = self.int_N(e)*1.
+            return sigB_N
+        elif act == 'NL':
+            sigB_NL = 0.0
+            if e < self.epsNL[0]:
+                sigB_NL = 0
+            elif e > self.epsNL[self.epsNL.size-1]:
+                sigB_NL = self.sigNL[self.sigNL.size-1]
+            else:
+                sigB_NL = self.int_NL(e) * 1.
+            return sigB_NL
 
 # %%
-
