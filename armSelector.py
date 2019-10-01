@@ -4,24 +4,13 @@ import numpy as np
 import plotly.express as px
 from scipy.interpolate import interp1d
 
-dfA = pd.read_csv('Арматура_диаграммы.csv', ';')
-
-
-def selectArm(c):
-    res = dfA[dfA.Class == c]
-    c = res[res.Action == 'C']
-    cl = res[res.Action == 'CL']
-    n = res[res.Action == 'N']
-    nl = res[res.Action == 'NL']
-    return c, cl, n, nl
-
 # %% Диаграммы деформирования
 
 
 class diagrA:
     # конструктор
     def __init__(self, classA):
-        C, CL, N, NL = selectArm(classA)
+        C, CL, N, NL = self.selectArm(classA)
         self.frameC = C
         self.frameCL = CL
         self.frameN = N
@@ -51,6 +40,15 @@ class diagrA:
         self.int_CL = interp1d(self.epsCL, self.sigCL)
         self.int_N = interp1d(self.epsN, self.sigN)
         self.int_NL = interp1d(self.epsNL, self.sigNL)
+
+    def selectArm(self, c):
+        self.src = pd.read_csv('Арматура_диаграммы.csv', ';')
+        res = self.src[self.src.Class == c]
+        C = res[res.Action == 'C']
+        CL = res[res.Action == 'CL']
+        N = res[res.Action == 'N']
+        NL = res[res.Action == 'NL']
+        return C, CL, N, NL
 
     def sig(self, e, act='C'):
         """
@@ -99,7 +97,7 @@ class diagrA:
                 sigA_NL = self.sigNL[self.sigNL.size-1]
             else:
                 sigA_NL = self.int_NL(e) * 1.
-                
+
             return sigA_NL
 
 # %%

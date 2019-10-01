@@ -5,35 +5,13 @@ import numpy as np
 import plotly.express as px
 from scipy.interpolate import interp1d
 
-dfB = pd.read_csv('Бетон_диаграммы.csv', ';')
-# %%
-
-
-def selectBeton(t, c, v):
-    return dfB.query('Vlaga == {} and Class=={} and Type =={}'.format(v, c, t))
-
-
-def plotBetDiagr(df):
-    c = dfB[dfB.Action != "N"]
-    c = c[c.Action != "NL"]
-    fig = px.line(c, x="ε", y="σ_MPa", color='Action', text='Text')
-    fig.update_layout(width=600, height=400,
-                      title='Расчетные (CL - при длительном действии нагрузок)')
-    fig.show()
-    c = dfB[dfB.Action != "C"]
-    c = c[c.Action != "CL"]
-    fig = px.line(c, x="ε", y="σ_MPa", color='Action', text='Text')
-    fig.update_layout(width=600, height=400,
-                      title='Норматривные (NL - при длительном действии нагрузок)')
-    fig.show()
 
 # %%
-
 
 class diagrB:
     # конструктор
     def __init__(self, classB, typdiagB, vlag):
-        s = selectBeton(typdiagB, classB, vlag)
+        s = self.selectBeton(typdiagB, classB, vlag)
         C = s[s.Action == 'C']
         CL = s[s.Action == 'CL']
         N = s[s.Action == 'N']
@@ -60,7 +38,25 @@ class diagrB:
         self.int_CL = interp1d(self.epsCL, self.sigCL)
         self.int_N = interp1d(self.epsN, self.sigN)
         self.int_NL = interp1d(self.epsNL, self.sigNL)
+    
+    def selectBeton(self, t, c, v):
+        self.src = pd.read_csv('Бетон_диаграммы.csv', ';')
+        return self.src.query('Vlaga == {} and Class=={} and Type =={}'.format(v, c, t))
 
+    def plotDiagr(self):
+        c = self.src[self.src.Action != "N"]
+        c = c[c.Action != "NL"]
+        fig = px.line(c, x="ε", y="σ_MPa", color='Action', text='Text')
+        fig.update_layout(width=600, height=400,
+                        title='Расчетные (CL - при длительном действии нагрузок)')
+        fig.show()
+        c = self.src[self.src.Action != "C"]
+        c = c[c.Action != "CL"]
+        fig = px.line(c, x="ε", y="σ_MPa", color='Action', text='Text')
+        fig.update_layout(width=600, height=400,
+                        title='Норматривные (NL - при длительном действии нагрузок)')
+        fig.show()
+    
     def sig(self, e, act='C'):
         """
         Возвращает кортеж напряжений в бетоне согласно 

@@ -255,18 +255,25 @@ class rectSect:
         self.Ys[0, :] = self.Ys[0, :] - np.max(atmpl.ds[:, 0]) * 0.5 - self.sl
         self.Ys[2, :] = self.Ys[2, :] + np.max(atmpl.ds[:, 2]) * 0.5 + self.sl
         self.basis = basis(0, 0, 0, b, h)
+        self.beton: diagrB = diagrB(25, 1, 2)
+        self.armatura: diagrA = diagrA('A500')
         nds = [node(1, b / 2, -h / 2), node(2, b / 2, h / 2),
                node(3, -b / 2, h / 2), node(4, -b / 2, -h / 2)]
         self.contour = contour(1, nds)
         self.contour.createSegments()
 
-    def getIntegrateContour(self, act='C',
-                            diagB=diagrB(25, 1, 2), diagA=diagrA('A400')):
-        # Нахождение контура интегрирования
-        self.beton = diagB
-        self.armatura = diagA
-        minEps = self.beton.epsC[0]
+    def SetMaterials(self, bet: diagrB, reinf: diagrA):
+        self.beton = bet
+        self.armatura = reinf                
 
+    def getIntegrateContour(self, act='C'):
+        # Нахождение контура интегрирования
+        pl = plane(self.basis.ε1, self.basis.ε2, self.basis.ε3)
+        for nd in self.contour.nodes:
+            nd.Z=pl.inerpolate(nd.X,nd.Y)
+        self.contour.createSegments()
+
+        minEps = self.beton.epsC[0]
         if act == 'CL':
             minEps = self.beton.epsCL[0]
         elif act == 'N':
@@ -314,7 +321,7 @@ class rectSect:
             res.append(act)
         return res
     
-    def functional(self, act='C', trg=False,nt=60):
+    def functional(self, act='C', trg=False, nt=60):
         intBA = 0.
         intBX = 0.
         intBY = 0.
@@ -325,7 +332,7 @@ class rectSect:
         
         pl = plane(self.basis.ε1, self.basis.ε2, self.basis.ε3)
         Es = list(map(pl.inerpolate, xs, ys))
-        ic = self.getIntegrateContour(act, self.beton, self.armatura)
+        ic = self.getIntegrateContour(act)
 
         als = self.actList(len(Es), act)
         Ss = np.array(list(map(self.armatura.sig, Es, als)))
@@ -360,25 +367,6 @@ class rectSect:
         My = intBY - intBAY + intAY
         return N, Mx, My
 
-
-# %%
-
-
-def functional1(sec: rectSect, diagB: diagrB = diagrB(25, 1, 2), diagA: diagrA = diagrA('A400')):
-    # Нахождение контура интегрирования
-    ic = sec.getIntegrateContour('C', diagB, diagA)
-    def sigBA(x, y): return sig(x, y, sec.basis, diagB, diagA)[0][0]
-    # intBA = float(polytope_integrate(
-    # Polygon((0, 0), (0, 1), (1, 0)), sigBA(x, y)))
-    intBAA = 0.
-    intAA = 0.
-    intBX = 0.
-    intBAX = 0.
-    intBY = 0.
-    intBAY = 0.
-    intAY = 0.
-    intAX = 0.
-    return ic
         
 # %%
 ds = armTmpl_3x3(np.array([[20., 0., 20.], [0., 0., 0.], [20., 0., 20.]]))
@@ -386,81 +374,11 @@ sc = rectSect(0.4, 0.6, 25., ds)
 sc.basis.ε1.Z = -0.0008
 sc.basis.ε2.Z = 0.0035
 sc.basis.ε3.Z = -0.0006
-sc.contour = sc.basis.epsCntr(sc.contour)
-icnt = functional1(sc, diagrB(25, 1, 2))
-interpolant = interp1d(diagrB(25, 1, 2).epsC, diagrB(25, 1, 2).sigC)
-pl = plane(sc.basis.ε1, sc.basis.ε2, sc.basis.ε3)
+bet = diagrB(25, 1, 2)
+arm = diagrA('A500')
+sc.beton = bet
+sc.armatura = arm
 
-X, Y, A = icnt.discretization()
-E = list(map(pl.inerpolate, X, Y))
-S = list(map(sc.beton.sig, E, sc.beton.actList(sc.n*sc.m, 'N')))
-
-ar = icnt.area()
-trngln = icnt.triangulate(n=60)
-Et = list(map(pl.inerpolate, trngln['X'], trngln['Y']))
-St = list(map(sc.beton.sig, Et, sc.beton.actList(sc.n * sc.m, 'C')))
-
-polynodes = []
-for i in icnt.nodes:
-    polynodes.append((i.X, i.Y))
-p1, p2, p3 = map(Point, polynodes)
-polygon = Polygon(p1, p2, p3)
-A = float(polygon.area)
-opt = 'qa' + str(round(A/60, 4))
-vert = dict(vertices=np.array(polynodes))
-mesh = tr.triangulate(vert, opt)
-
-
-trianglesBuff = {'A': [], 'X': [], 'Y': [], 'eps': [], 'sig': []}
-for trgl in mesh['triangles']:
-    # p1 = Point((mesh['vertices'][trgl[0]]))
-    # p2 = Point((mesh['vertices'][trgl[1]]))
-    # p3 = Point((mesh['vertices'][trgl[2]]))
-    # polygon = Polygon(p1, p2, p3)
-    # centr = polygon.centroid
-    p1 = mesh['vertices'][trgl[0]]
-    p2 = mesh['vertices'][trgl[1]]
-    p3 = mesh['vertices'][trgl[2]]
-    s = abs(0.5 * ((p2[0] - p1[0]) * (p3[1] - p1[1]) -
-                   (p3[0] - p1[0]) * (p2[1] - p1[1])))
-    xm = (p1[0] + p2[0] + p3[0]) / 3
-    ym = (p1[1] + p2[1] + p3[1]) / 3
-    eps = pl.inerpolate(xm, ym)
-    trianglesBuff['A'].append(s)
-    trianglesBuff['X'].append(xm)
-    trianglesBuff['Y'].append(ym)
-    trianglesBuff['eps'].append(eps)
-    trianglesBuff['sig'].append(interpolant.linterp(eps))
-
-stress = list(map(lambda x, y: x*y, trianglesBuff['sig'], trianglesBuff['A']))
-
-
-def linterp(x: list, y: list, val):
-    if val < x[0]:
-        pt1: point3d = point3d(x[0], y[0])
-        pt2: point3d = point3d(x[1], y[1])
-        ln = line2d(pt1, pt2)
-        return ln.interpolateY(val)
-    elif val >= x[len(x)-1]:
-        pt1: point3d = point3d(x[len(x)-2], y[len(x)-2])
-        pt2: point3d = point3d(x[len(x)-1], y[len(x)-1])
-        ln = line2d(pt1, pt2)
-        return ln.interpolateY(val)
-    else:
-        for i in range(0, len(x) - 1):
-            if val >= x[i] and val < x[i+1]:
-                pt1: point3d = point3d(x[i], y[i])
-                pt2: point3d = point3d(x[i + 1], y[i + 1])
-                ln = line2d(pt1, pt2)
-                return ln.interpolateY(val)
-
-
-intBA = sum(stress)
-
-# %%
-
-
-def sig(x: float, y: float, base: basis, diagB: diagrB, diagA: diagrA):
-    pl = plane(base.ε1, base.ε2, base.ε3)
-    eps = pl.inerpolate(x, y)
-    return [diagB.sig(eps), diagA.sig(eps)]
+#%%
+ft=sc.functional('C',True)
+#%%
