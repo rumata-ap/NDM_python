@@ -4,7 +4,7 @@ import triangle as tr
 from geometry import *
 from armSelector import *
 from betonSelector import *
-from math import pi
+from math import pi, sqrt
 import numpy as np
 # import triangle
 # from scipy.integrate import dblquad
@@ -307,78 +307,58 @@ class rectSect:
             integrateContour.nodes = nodesTemp
             integrateContour.createSegments()
             return integrateContour
+
+    def actList(self, n, act='C'):
+        res = []
+        for i in range(0, n):
+            res.append(act)
+        return res
     
     def functional(self, act='C', trg=False,nt=60):
         intBA = 0.
-        intBAA = 0.
-        intAA = 0.
         intBX = 0.
-        intBAX = 0.
         intBY = 0.
-        intBAY = 0.
-        intAY = 0.
-        intAX = 0.
 
+        xs=self.Xs.reshape(9,)
+        ys=self.Ys.reshape(9,)
+        aas = self.As.reshape(9,)
+        
         pl = plane(self.basis.ε1, self.basis.ε2, self.basis.ε3)
+        Es = list(map(pl.inerpolate, xs, ys))
         ic = self.getIntegrateContour(act, self.beton, self.armatura)
-        if act == 'C':
-            
-            if trg:
-                trngln = ic.triangulate(nt)
-                Et = list(map(pl.inerpolate, trngln['X'], trngln['Y']))
-                St = list(map(self.beton.sig, Et,
-                              self.beton.actList(self.n * self.m, 'C')))
-                intBA = sum(np.array(St) * trngln['A'])
-                intBX = sum(np.array(St) * trngln['A'] * trngln['X'])
-                intBY = sum(np.array(St) * trngln['A'] * trngln['Y'])
-            else:
-                X, Y, A = ic.discretization(self.n, self.m)
-                E = list(map(pl.inerpolate, X, Y))
-                S = list(
-                    map(self.beton.sig, E, self.beton.actList(self.n * self.m, 'C')))
-                intBA = sum(np.array(S) * A)
-                intBX = sum(np.array(S) * A * X)
-                intBY = sum(np.array(S) * A * Y)
-                
-        elif act == 'CL':
 
-            if trg:
-                trngln = ic.triangulate(nt)
-                Et = list(map(pl.inerpolate, trngln['X'], trngln['Y']))
-                St = list(map(sc.beton.sig, Et, sc.beton.actList(sc.n*sc.m, 'CL')))
-                intBA = sum(list(np.array(St) * trngln['A']))
-            else:
-                X, Y, A = ic.discretization(self.n, self.m)
-                E = list(map(pl.inerpolate, X, Y))
-                S = list(map(sc.beton.sig, E, sc.beton.actList(sc.n*sc.m, 'CL')))
-                intBA = sum(list(np.array(S) * A))
+        als = self.actList(len(Es), act)
+        Ss = np.array(list(map(self.armatura.sig, Es, als)))
+        Sbs = np.array(list(map(self.beton.sig, Es, als)))
+        intAA = sum(Ss * aas)
+        intAX = sum(Ss * aas * xs)
+        intAY = sum(Ss * aas * ys)
+        intBAA = sum(Sbs * aas)
+        intBAX = sum(Sbs * aas * xs)
+        intBAY = sum(Sbs * aas * ys)
 
-        elif act == 'N':
+        if trg:
+            trngln = ic.triangulate(nt)
+            Eb = np.array(
+                list(map(pl.inerpolate, trngln['X'], trngln['Y'])))
+            Sb = np.array(
+                list(map(self.beton.sig, Eb, self.actList(len(Eb), act))))
+            intBA = sum(Sb * trngln['A'])
+            intBX = sum(Sb * trngln['A'] * trngln['X'])
+            intBY = sum(Sb * trngln['A'] * trngln['Y'])
+        else:
+            X, Y, A = ic.discretization(self.n, self.m)
+            Eb = np.array(list(map(pl.inerpolate, X, Y)))
+            Sb = np.array(
+                list(map(self.beton.sig, Eb, self.actList(len(X), act))))
+            intBA = sum(Sb * A)
+            intBX = sum(Sb * A * X)
+            intBY = sum(Sb * A * Y)
 
-            if trg:
-                trngln = ic.triangulate(nt)
-                Et = list(map(pl.inerpolate, trngln['X'], trngln['Y']))
-                St = list(
-                    map(sc.beton.sig, Et, sc.beton.actList(sc.n*sc.m, 'N')))
-                intBA = sum(list(np.array(St) * trngln['A']))
-            else:
-                X, Y, A = ic.discretization(self.n, self.m)
-                E = list(map(pl.inerpolate, X, Y))
-                S = list(map(sc.beton.sig, E, sc.beton.actList(sc.n*sc.m, 'N')))
-                intBA = sum(list(np.array(S) * A))
-
-        elif act == 'NL':
-
-            if trg:
-                trngln = ic.triangulate(nt)
-                Et = list(map(pl.inerpolate, trngln['X'], trngln['Y']))
-                St = list(map(sc.beton.sig, Et, sc.beton.actList(sc.n*sc.m, 'NL')))
-                intBA = sum(list(np.array(St) * trngln['A']))
-            else:
-                X, Y, A = ic.discretization(self.n, self.m)
-                E = list(map(pl.inerpolate, X, Y))
-                S = list(map(sc.beton.sig, E, sc.beton.actList(sc.n*sc.m, 'NL')))
-                intBA = sum(list(np.array(S) * A))
+        N = intBA - intBAA + intAA
+        Mx = intBX - intBAX + intAX
+        My = intBY - intBAY + intAY
+        return N, Mx, My
 
 
 # %%

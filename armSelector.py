@@ -52,45 +52,55 @@ class diagrA:
         self.int_N = interp1d(self.epsN, self.sigN)
         self.int_NL = interp1d(self.epsNL, self.sigNL)
 
-    def sig(self, e):
+    def sig(self, e, act='C'):
         """
         Возвращает кортеж напряжений в арматуре согласно 
         функции 'σ(ε)' при различных действиях нагрузки (C, CL, N, NL).
         Параметр 'e' - значение деформации.
         """
-        sigA_C = 0.0
-        if e < self.epsC[0]:
-            sigA_C = self.sigC[0]
-        elif e > self.epsC[self.epsC.size-1]:
-            sigA_C = self.sigC[self.sigC.size-1]
-        else:
-            sigA_C = self.int_C(e)*1.
+        if act == 'C':
+            sigA_C = 0.0
+            if e < self.epsC[0]:
+                sigA_C = self.sigC[0]
+            elif e > self.epsC[self.epsC.size-1]:
+                sigA_C = self.sigC[self.sigC.size-1]
+            else:
+                sigA_C = self.int_C(e)*1.
 
-        sigA_CL = 0.0
-        if e < self.epsCL[0]:
-            sigA_CL = self.sigCL[0]
-        elif e > self.epsCL[self.epsCL.size-1]:
-            sigA_CL = self.sigCL[self.sigCL.size-1]
-        else:
-            sigA_CL = self.int_CL(e)*1.
+            return sigA_C
 
-        sigA_N = 0.0
-        if e < self.epsN[0]:
-            sigA_N = self.sigN[0]
-        elif e > self.epsN[self.epsN.size-1]:
-            sigA_N = self.sigN[self.sigN.size-1]
-        else:
-            sigA_N = self.int_N(e)*1.
+        elif act == 'CL':
+            sigA_CL = 0.0
+            if e < self.epsCL[0]:
+                sigA_CL = self.sigCL[0]
+            elif e > self.epsCL[self.epsCL.size-1]:
+                sigA_CL = self.sigCL[self.sigCL.size-1]
+            else:
+                sigA_CL = self.int_CL(e)*1.
 
-        sigA_NL = 0.0
-        if e < self.epsNL[0]:
-            sigA_NL = self.sigNL[0]
-        elif e > self.epsNL[self.epsNL.size-1]:
-            sigA_NL = self.sigNL[self.sigNL.size-1]
-        else:
-            sigA_NL = self.int_NL(e)*1.
+            return sigA_CL
 
-        return sigA_C, sigA_CL, sigA_N, sigA_NL
+        elif act == 'N':
+            sigA_N = 0.0
+            if e < self.epsN[0]:
+                sigA_N = self.sigN[0]
+            elif e > self.epsN[self.epsN.size-1]:
+                sigA_N = self.sigN[self.sigN.size-1]
+            else:
+                sigA_N = self.int_N(e)*1.
+
+            return sigA_N
+
+        elif act == 'NL':
+            sigA_NL = 0.0
+            if e < self.epsNL[0]:
+                sigA_NL = self.sigNL[0]
+            elif e > self.epsNL[self.epsNL.size-1]:
+                sigA_NL = self.sigNL[self.sigNL.size-1]
+            else:
+                sigA_NL = self.int_NL(e) * 1.
+                
+            return sigA_NL
 
 # %%
 

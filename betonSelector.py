@@ -61,12 +61,6 @@ class diagrB:
         self.int_N = interp1d(self.epsN, self.sigN)
         self.int_NL = interp1d(self.epsNL, self.sigNL)
 
-    def actList(self, n, act='C'):
-        res = []
-        for i in range(0, n):
-            res.append(act)
-        return res
-
     def sig(self, e, act='C'):
         """
         Возвращает кортеж напряжений в бетоне согласно 
