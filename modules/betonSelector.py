@@ -2,12 +2,14 @@
 import pandas as pd
 import numpy as np
 import plotly.express as px
-from linearInterpolation import linterp1d
+from modules.linearInterpolation import linterp1d
 
 
 # %%
 
-class diagrB:
+class Beton:
+    descript = ''
+    number: int
     # конструктор
     def __init__(self, classB, typdiagB, vlag):
         self.classB = classB

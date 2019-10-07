@@ -1,25 +1,27 @@
 # %%
 import matplotlib.pyplot as plt
 import triangle as tr
-from geometry import *
-from armSelector import *
-from betonSelector import *
+from modules.geometry import Point3d, Vector3d, Line2d, Plane
+from modules.armSelector import Armatura
+from modules.betonSelector import Beton
 from math import pi, sqrt
 import numpy as np
+
+
 # import triangle
 # from scipy.integrate import dblquad
 # from sympy.integrals.intpoly import *
-#from sympy import Point, Polygon, Float
+# from sympy import Point, Polygon, Float
 
 # %%
 
-class node(point3d):
+class Node(Point3d):
     def __init__(self, num=0, x=0., y=0., z=0., attr={}):
-        point3d.__init__(self, x, y, z)
+        Point3d.__init__(self, x, y, z)
         self.id = num
         self.attr = attr
 
-    def fromPoint3d(self, pt: point3d):
+    def fromPoint3d(self, pt: Point3d):
         self.X = pt.X
         self.Y = pt.Y
         self.Z = pt.Z
@@ -28,17 +30,17 @@ class node(point3d):
 # %%
 
 
-class segment:
-    def __init__(self, num: int, i: point3d, j: point3d, attr={}):
+class Segment:
+    def __init__(self, num: int, i: Point3d, j: Point3d, attr={}):
         self.i = i
         self.j = j
         self.attr = attr
         self.num = num
-        self.line = line2d(i, j)
+        self.line = Line2d(i, j)
 
 
-class boundingBox:
-    def __init__(self, minp=point3d(), maxp=point3d()):
+class BoundingBox:
+    def __init__(self, minp=Point3d(), maxp=Point3d()):
         self.minPt = minp
         self.maxPt = maxp
 
@@ -46,7 +48,7 @@ class boundingBox:
 # %%
 
 
-class contour:
+class Сontour:
     def __init__(self, num: int, nodes=[], attr={}):
         self.num = num
         self.nodes = nodes
@@ -58,48 +60,48 @@ class contour:
             for seg in self.segs:
                 arrTemp = seg.i
                 arrTemp1 = seg.j
-                temp = temp + 0.5*(arrTemp.X * arrTemp1.Y -
-                                   arrTemp1.X * arrTemp.Y)
+                temp = temp + 0.5 * (arrTemp.X * arrTemp1.Y -
+                                     arrTemp1.X * arrTemp.Y)
         self.A = abs(temp)
         return temp
 
     def centroid(self):
         if self.segs != None and len(self.segs) > 2:
             area = self.area()
-            temp = point3d()
+            temp = Point3d()
             for seg in self.segs:
                 arrTemp = seg.i
                 arrTemp1 = seg.j
                 temp.X = temp.X + 1 / (6 * area) * (arrTemp.X + arrTemp1.X) * \
-                    (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X)
+                         (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X)
                 temp.Y = temp.Y + 1 / (6 * area) * (arrTemp.Y + arrTemp1.Y) * \
-                    (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X)
+                         (arrTemp.X * arrTemp1.Y - arrTemp.Y * arrTemp1.X)
             self.Centr = temp
             return temp
 
     def createSegments(self):
         self.segs = []
-        for i in range(0, len(self.nodes)-1):
-            self.segs.append(segment(i + 1, self.nodes[i], self.nodes[i + 1]))
+        for i in range(0, len(self.nodes) - 1):
+            self.segs.append(Segment(i + 1, self.nodes[i], self.nodes[i + 1]))
         self.segs.append(
-            segment(len(self.segs) + 1, self.nodes[len(self.nodes)-1],
+            Segment(len(self.segs) + 1, self.nodes[len(self.nodes) - 1],
                     self.nodes[0]))
 
     def getBoundingBox(self):
         xm = []
         ym = []
         if self.nodes == None:
-            return boundingBox()
+            return BoundingBox()
         for node in self.nodes:
             xm.append(node.X)
             ym.append(node.Y)
-        maxPt = point3d(max(xm), max(ym))
-        minPt = point3d(min(xm), min(ym))
-        self.BB = boundingBox(minPt, maxPt)
+        maxPt = Point3d(max(xm), max(ym))
+        minPt = Point3d(min(xm), min(ym))
+        self.BB = BoundingBox(minPt, maxPt)
         return self.BB
 
     def copy(self):
-        return contour(self.num, self.nodes.copy(), self.segs.copy())
+        return Сontour(self.num, self.nodes.copy(), self.segs.copy())
 
     def triangulate(self, n=100):
         area = self.area()
@@ -131,9 +133,9 @@ class contour:
         b = bb.maxPt.X - bb.minPt.X
         h = bb.maxPt.Y - bb.minPt.Y
         lx = list(np.linspace(bb.minPt.X, bb.maxPt.X,
-                              num=xn, endpoint=False)+b/(2*xn))
+                              num=xn, endpoint=False) + b / (2 * xn))
         ly = list(np.linspace(bb.maxPt.Y, bb.minPt.Y,
-                              num=yn, endpoint=False)-h/(2*yn))
+                              num=yn, endpoint=False) - h / (2 * yn))
         X = []
         for i in range(0, yn):
             X.append(lx)
@@ -142,24 +144,24 @@ class contour:
         for i in range(0, xn):
             Y.append(ly)
 
-        return np.array(X).reshape(xn*yn,), np.array(Y).T.reshape(xn*yn,), (b / xn) * (h / yn)
+        return np.array(X).reshape(xn * yn, ), np.array(Y).T.reshape(xn * yn, ), (b / xn) * (h / yn)
 
 
 # %%
 
 
-class basis:
+class Basis:
     def __init__(self, e1=0., e2=0., e3=0., b=0., h=0.):
-        self.ε1 = point3d(b / 2, -h / 2, e1)
-        self.ε2 = point3d(b / 2, h / 2, e2)
-        self.ε3 = point3d(-b / 2, h / 2, e3)
+        self.ε1 = Point3d(b / 2, -h / 2, e1)
+        self.ε2 = Point3d(b / 2, h / 2, e2)
+        self.ε3 = Point3d(-b / 2, h / 2, e3)
 
     def eps(self, x: float, y: float):
-        pl = plane(self.ε1, self.ε2, self.ε3)
+        pl = Plane(self.ε1, self.ε2, self.ε3)
         return pl.inerpolate(x, y)
 
-    def epsCntr(self, cnt: contour):
-        pl = plane(self.ε1, self.ε2, self.ε3)
+    def epsCntr(self, cnt: Сontour):
+        pl = Plane(self.ε1, self.ε2, self.ε3)
         for i in range(0, len(cnt.nodes)):
             cnt.nodes[i].Z = pl.inerpolate(cnt.nodes[i].X, cnt.nodes[i].Y)
             cnt.nodes[i].attr['eps'] = cnt.nodes[i].Z
@@ -170,64 +172,70 @@ class basis:
 # %%
 
 
-class armTmpl_3x3:
+class ArmTmpl_3x3:
     def __init__(self, ds: np.ndarray, ns=np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]])):
-        self.ds = ds*0.001
+        self.ds = ds * 0.001
         self.As = self.ds * self.ds * pi * 0.25 * ns
 
-#%%
+
+# %%
 class LoadNDM:
     N = 0.
     Mx = 0.
     My = 0.
-#%%
+    attr = {}
 
-
-class CrossSect:
-    loads = {'C': [], 'CL': [], 'N': [], 'NL': []}
-
-    def functional(self, act='C', trg=False, nt=60):
-        raise NotImplementedError
 
 # %%
 
 
-class rectSect(CrossSect):  
+class CrossSect:
+    loads = {'C': [], 'CL': [], 'N': [], 'NL': []}
+    number: int
+
+    def functional(self, act='C', trg=False, nt=60):
+        raise NotImplementedError
+
+
+# %%
+
+
+class RectSect(CrossSect):
     def __init__(self, b: float, h: float, sl: float,
-                 atmpl: armTmpl_3x3, n=10, m=10):
+                 atmpl: ArmTmpl_3x3, n=10, m=10):
         self.b = b
         self.h = h
-        self.sl = sl*0.001
+        self.sl = sl * 0.001
         self.n = n
         self.m = m
         self.As = atmpl.As
-        self.Xs = np.array([[-b/2, 0, b/2],
-                            [-b/2, 0, b/2],
-                            [-b/2, 0, b/2]])
-        self.Ys = np.array([[h/2, h/2, h/2],
+        self.Xs = np.array([[-b / 2, 0, b / 2],
+                            [-b / 2, 0, b / 2],
+                            [-b / 2, 0, b / 2]])
+        self.Ys = np.array([[h / 2, h / 2, h / 2],
                             [0, 0, 0],
-                            [-h/2, -h/2, -h/2]])
+                            [-h / 2, -h / 2, -h / 2]])
         self.Xs[:, 0] = self.Xs[:, 0] + np.max(atmpl.ds[0, :]) * 0.5 + self.sl
         self.Xs[:, 2] = self.Xs[:, 2] - np.max(atmpl.ds[2, :]) * 0.5 - self.sl
         self.Ys[0, :] = self.Ys[0, :] - np.max(atmpl.ds[:, 0]) * 0.5 - self.sl
         self.Ys[2, :] = self.Ys[2, :] + np.max(atmpl.ds[:, 2]) * 0.5 + self.sl
-        self.basis = basis(0, 0, 0, b, h)
-        self.beton: diagrB = diagrB(25, 1, 2)
-        self.armatura: diagrA = diagrA('A500')
-        nds = [node(1, b / 2, -h / 2), node(2, b / 2, h / 2),
-               node(3, -b / 2, h / 2), node(4, -b / 2, -h / 2)]
-        self.contour = contour(1, nds)
+        self.basis = Basis(0, 0, 0, b, h)
+        self.beton: Beton = Beton(25, 1, 2)
+        self.armatura: Armatura = Armatura('A500')
+        nds = [Node(1, b / 2, -h / 2), Node(2, b / 2, h / 2),
+               Node(3, -b / 2, h / 2), Node(4, -b / 2, -h / 2)]
+        self.contour = Сontour(1, nds)
         self.contour.createSegments()
 
-    def SetMaterials(self, bet: diagrB, reinf: diagrA):
+    def setMaterials(self, bet: Beton, reinf: Armatura):
         self.beton = bet
-        self.armatura = reinf                
+        self.armatura = reinf
 
     def getIntegrateContour(self, act='C'):
         # Нахождение контура интегрирования
-        pl = plane(self.basis.ε1, self.basis.ε2, self.basis.ε3)
+        pl = Plane(self.basis.ε1, self.basis.ε2, self.basis.ε3)
         for nd in self.contour.nodes:
-            nd.Z=pl.inerpolate(nd.X,nd.Y)
+            nd.Z = pl.inerpolate(nd.X, nd.Y)
         self.contour.createSegments()
 
         minEps = self.beton.epsC[0]
@@ -239,7 +247,7 @@ class rectSect(CrossSect):
             minEps = self.beton.epsNL[0]
 
         nodesTemp = []
-        integrateContour: contour = self.contour.copy()
+        integrateContour: Сontour = self.contour.copy()
         eps = []
         for i in range(0, len(self.contour.segs)):
             eps.append(self.contour.nodes[i].Z)
@@ -247,20 +255,20 @@ class rectSect(CrossSect):
         if min(eps) < minEps:
             k = 0
             for i in range(0, len(self.contour.segs)):
-                se: point3d = self.contour.segs[i].line.start.copy()
+                se: Point3d = self.contour.segs[i].line.start.copy()
                 te = se.Z
                 se.Z = se.Y
                 se.Y = se.X
                 se.X = te
-                ee: point3d = self.contour.segs[i].line.end.copy()
+                ee: Point3d = self.contour.segs[i].line.end.copy()
                 te = ee.Z
                 ee.Z = ee.Y
                 ee.Y = ee.X
                 ee.X = te
-                ln: line2d = line2d(se, ee)
-                tpt: point3d = ln.interpolateEps(minEps)
-                l1 = line2d(tpt, self.contour.segs[i].line.start).L
-                l2 = line2d(tpt, self.contour.segs[i].line.end).L
+                ln: Line2d = Line2d(se, ee)
+                tpt: Point3d = ln.interpolateEps(minEps)
+                l1 = Line2d(tpt, self.contour.segs[i].line.start).L
+                l2 = Line2d(tpt, self.contour.segs[i].line.end).L
                 l = self.contour.segs[i].line.L
                 if l1 < l and l2 < l:
                     k = k + 1
@@ -277,17 +285,17 @@ class rectSect(CrossSect):
         for i in range(0, n):
             res.append(act)
         return res
-    
+
     def functional(self, act='C', trg=False, nt=60):
         intBA = 0.
         intBX = 0.
         intBY = 0.
 
-        xs=self.Xs.reshape(9,)
-        ys=self.Ys.reshape(9,)
-        aas = self.As.reshape(9,)
-        
-        pl = plane(self.basis.ε1, self.basis.ε2, self.basis.ε3)
+        xs = self.Xs.reshape(9, )
+        ys = self.Ys.reshape(9, )
+        aas = self.As.reshape(9, )
+
+        pl = Plane(self.basis.ε1, self.basis.ε2, self.basis.ε3)
         Es = list(map(pl.inerpolate, xs, ys))
         ic = self.getIntegrateContour(act)
 
@@ -323,20 +331,19 @@ class rectSect(CrossSect):
         Mx = intBX - intBAX + intAX
         My = intBY - intBAY + intAY
         return N, Mx, My
-        
-        
-# %%
-ds = armTmpl_3x3(np.array([[20., 0., 20.], [0., 0., 0.], [20., 0., 20.]]))
-sc = rectSect(0.4, 0.6, 25., ds)
-sc.basis.ε1.Z = -0.0008
-sc.basis.ε2.Z = 0.0035
-sc.basis.ε3.Z = -0.0006
 
-#%%
-f=sc.functional('N')
-#%%
-def test(arg:CrossSect):
+
+# # %%
+# ds = ArmTmpl_3x3(np.array([[20., 0., 20.], [0., 0., 0.], [20., 0., 20.]]))
+# sc = RectSect(0.4, 0.6, 25., ds)
+# sc.Basis.ε1.Z = -0.0008
+# sc.Basis.ε2.Z = 0.0035
+# sc.Basis.ε3.Z = -0.0006
+
+# #%%
+# f=sc.functional('N')
+# %%
+def test(arg: CrossSect):
     return arg.functional()
 
-
-#%%
+# %%
