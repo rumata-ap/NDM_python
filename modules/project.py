@@ -7,6 +7,8 @@ class Project:
     name = ''
     descr = ''
     nodes = []
+    bars = []
+    shells = []
     elements = []
     materials = {'beton': [], 'armatura': []}
     selectedElement: Element

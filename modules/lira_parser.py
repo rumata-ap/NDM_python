@@ -25,39 +25,51 @@ class LiraParser:
             spath = str(path).replace('.xls','.csv')
             rsu.to_csv(spath, ';', encoding="utf-8", index=False)
         print('Файлы преобразованы')
+
+    @staticmethod
+    def getBarsRSU(parameter_list):
+        pass
+
+    @staticmethod
+    def getShellsRSU(parameter_list):
+        pass
     
     
 
 #%%
-LiraParser.RSU_xls2csv(['C_rsu.xls'])
+#LiraParser.RSU_xls2csv(['C_rsu.xls'])
 
 
 #%%
 
 
 def on_clicked():
+    app = QtWidgets.QApplication(sys.argv)
     arr, l = QtWidgets.QFileDialog.getOpenFileNames(parent=None,
                                                     caption="Заголовок окна", directory=QtCore.QDir.currentPath(),
                                                     filter="Excel (*.xls);;Текст (*.csv);;All (*)")
-    LiraParser.RSU_xls2csv(arr)
-    #print(arr)
+    #LiraParser.RSU_xls2csv(arr)
+    #sys.exit(app.exec_())
+    print(arr)
 
 # %%
 
-app = QtWidgets.QApplication(sys.argv)
-window = QtWidgets.QWidget()
-window.setWindowTitle("Преобразователь таблиц")
-#window.resize(300, 70)
+# app = QtWidgets.QApplication(sys.argv)
+# window = QtWidgets.QWidget()
+# window.setWindowTitle("Преобразователь таблиц")
+# #window.resize(300, 70)
 
-button = QtWidgets.QPushButton("Отобразить диалоговое окно...")
-button.clicked.connect(on_clicked)
+# button = QtWidgets.QPushButton("Отобразить диалоговое окно...")
+# button.clicked.connect(on_clicked)
 
-box = QtWidgets.QVBoxLayout()
-box.addWidget(button)
-window.setLayout(box)
-window.show()
+# box = QtWidgets.QVBoxLayout()
+# box.addWidget(button)
+# window.setLayout(box)
+# window.show()
 
-sys.exit(app.exec_())
+# sys.exit(app.exec_())
 
 
 #%%
+if __name__ == '__main__':
+    on_clicked()
