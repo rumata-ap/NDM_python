@@ -6,9 +6,9 @@ from modules.element import Element, Fe, FeBar, FePlate
 class Project:
     name = ''
     descr = ''
-    nodes = []
-    bars = []
-    shells = []
+    nodesDf = []
+    barsDf = []
+    shellsDf = []
     elements = []
     materials = {'beton': [], 'armatura': []}
     selectedElement: Element
