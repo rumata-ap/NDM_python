@@ -1,11 +1,15 @@
 # %%
 #from PyQt5 import QtCore, QtWidgets
 #from MainWindow import Ui_MainWindow
-from modules.project import Project
-from modules.element import Element, Fe, FeBar, FePlate
 import pickle
 import sys
 
+from PyQt5 import QtWidgets
+
+import gui
+from gui import prj
+from modules.element import Element, Fe, FeBar, FePlate
+from modules.project import Project
 
 # %%
 
@@ -90,6 +94,12 @@ def main():
 
         inp = input('>>> ')
 
+def GUI():
+    app = QtWidgets.QApplication(sys.argv)
+    window = gui.MyWindow()
+    window.resize(680, 70)
+    window.show()
+    sys.exit(app.exec_())
 
 if __name__ == "__main__":
-    main()
+    GUI()

@@ -1,114 +1,252 @@
 # -*- coding: utf-8 -*-
+import sys
+import copy
+import pickle
+from PyQt5 import QtCore, QtWidgets, QtGui
+from modules.project import Project
+from modules.betonSelector import BetonCreator, BetonEditor
+from modules.armSelector import ArmCreator
 
-# Form implementation generated from reading ui file 'c:\Users\ponomarev\YandexDisk-palexxvlad\Документы\Python Scripts\NDM_python\MainWindow.ui'
-#
-# Created by: PyQt5 UI code generator 5.13.0
-#
-# WARNING! All changes made in this file will be lost!
+w = None
 
+class MyWidget(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        QtWidgets.QWidget.__init__(self, parent)
+        self.label = QtWidgets.QLabel("Содержимое страницы")
+        self.button = QtWidgets.QPushButton("Кнопка")
+        self.box = QtWidgets.QVBoxLayout()
+        self.box.addWidget(self.label)
+        self.box.addWidget(self.button)
+        self.setLayout(self.box)
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+class MyWindow(QtWidgets.QMainWindow):
+    def __init__(self, parent=None):
+        QtWidgets.QMainWindow.__init__(self, parent)
+        self.prj: Project = Project('temp')
+        self.w = MyWidget()
+        self.setCentralWidget(self.w)
+        self.w.button.clicked.connect(self.on_clicked)
+        self.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        self.setIconSize(QtCore.QSize(32, 32))
+        self.setWindowTitle("Concrete Organizer")
+        # self.setAnimated(False)
+        self.setDockOptions(QtWidgets.QMainWindow.AnimatedDocks |
+                            QtWidgets.QMainWindow.AllowTabbedDocks)
+        self.setTabPosition(QtCore.Qt.LeftDockWidgetArea,
+                            QtWidgets.QTabWidget.North)
+        self.setTabPosition(QtCore.Qt.RightDockWidgetArea,
+                            QtWidgets.QTabWidget.North)
+        self.setTabShape(QtWidgets.QTabWidget.Triangular)
+        self.add_menu()
+        # self.add_tool_bar()
+        # self.add_dock_widget()
+        self.statusBar().showMessage("Текст в строке состояния")
 
+    def add_menu(self):
+        self.menuFile = QtWidgets.QMenu("&Файл")
+        self.actNew = QtWidgets.QAction("Создать", None)
+        self.actNew.setShortcut(QtGui.QKeySequence.New)
+        self.actNew.triggered.connect(self.on_new)
+        self.actOpen = QtWidgets.QAction("Открыть", None)
+        self.actOpen.setShortcut(QtGui.QKeySequence.Open)
+        self.actOpen.triggered.connect(self.on_open)
+        self.actSave = QtWidgets.QAction("Сохранить", None)
+        self.actSave.setShortcut(QtGui.QKeySequence.Save)
+        self.actSave.triggered.connect(self.on_save)
+        self.actSaveAs = QtWidgets.QAction("Сохранить как", None)
+        self.actSaveAs.setShortcut(QtGui.QKeySequence.SaveAs)
+        self.actSaveAs.triggered.connect(self.on_saveas)
+        self.actSettings = QtWidgets.QAction("Параметры", None)
+        self.actSettings.triggered.connect(self.on_settings)
+        self.actExit = QtWidgets.QAction("Выход", None)
+        self.actExit.setShortcut(QtGui.QKeySequence.Quit)
+        self.actExit.triggered.connect(self.on_quit)
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(798, 277)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.centralwidget)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setObjectName("tabWidget")
-        self.tab = QtWidgets.QWidget()
-        self.tab.setObjectName("tab")
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.tab)
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.verticalLayout = QtWidgets.QVBoxLayout()
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.comboBox = QtWidgets.QComboBox(self.tab)
-        self.comboBox.setObjectName("comboBox")
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
-        self.verticalLayout.addWidget(self.comboBox)
-        self.label = QtWidgets.QLabel(self.tab)
-        self.label.setObjectName("label")
-        self.verticalLayout.addWidget(self.label)
-        self.pushButton = QtWidgets.QPushButton(self.tab)
-        self.pushButton.setObjectName("pushButton")
-        self.verticalLayout.addWidget(self.pushButton)
-        self.line = QtWidgets.QFrame(self.tab)
-        self.line.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line.setObjectName("line")
-        self.verticalLayout.addWidget(self.line)
-        self.horizontalLayout.addLayout(self.verticalLayout)
-        self.gridLayout = QtWidgets.QGridLayout()
-        self.gridLayout.setObjectName("gridLayout")
-        self.pushButton_2 = QtWidgets.QPushButton(self.tab)
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.gridLayout.addWidget(self.pushButton_2, 0, 0, 1, 1)
-        self.pushButton_3 = QtWidgets.QPushButton(self.tab)
-        self.pushButton_3.setObjectName("pushButton_3")
-        self.gridLayout.addWidget(self.pushButton_3, 0, 1, 1, 1)
-        self.pushButton_4 = QtWidgets.QPushButton(self.tab)
-        self.pushButton_4.setObjectName("pushButton_4")
-        self.gridLayout.addWidget(self.pushButton_4, 1, 1, 1, 1)
-        self.pushButton_5 = QtWidgets.QPushButton(self.tab)
-        self.pushButton_5.setObjectName("pushButton_5")
-        self.gridLayout.addWidget(self.pushButton_5, 1, 0, 1, 1)
-        self.pushButton_6 = QtWidgets.QPushButton(self.tab)
-        self.pushButton_6.setObjectName("pushButton_6")
-        self.gridLayout.addWidget(self.pushButton_6, 2, 1, 1, 1)
-        self.horizontalLayout.addLayout(self.gridLayout)
-        self.verticalLayout_3.addLayout(self.horizontalLayout)
-        self.tabWidget.addTab(self.tab, "")
-        self.tab_2 = QtWidgets.QWidget()
-        self.tab_2.setObjectName("tab_2")
-        self.tabWidget.addTab(self.tab_2, "")
-        self.verticalLayout_2.addWidget(self.tabWidget)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 798, 21))
-        self.menubar.setObjectName("menubar")
-        self.menu = QtWidgets.QMenu(self.menubar)
-        self.menu.setObjectName("menu")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
-        self.action = QtWidgets.QAction(MainWindow)
-        self.action.setObjectName("action")
-        self.action_2 = QtWidgets.QAction(MainWindow)
-        self.action_2.setObjectName("action_2")
-        self.createProj = QtWidgets.QAction(MainWindow)
-        self.createProj.setObjectName("createProj")
-        self.menu.addAction(self.createProj)
-        self.menubar.addAction(self.menu.menuAction())
+        self.menuFile.addAction(self.actNew)
+        self.menuFile.addAction(self.actOpen)
+        self.menuFile.addAction(self.actSave)
+        self.menuFile.addAction(self.actSaveAs)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actSettings)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actExit)
 
-        self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.menuMaterials = QtWidgets.QMenu("&Материалы")
+        self.menuBeton = self.menuMaterials.addMenu('Бетон')
+        self.menuArm = self.menuMaterials.addMenu('Арматура')
+        # self.menuMaterials.addAction(self.actGroupBeton)
 
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.comboBox.setItemText(0, _translate("MainWindow", "Трехлинейная"))
-        self.comboBox.setItemText(1, _translate("MainWindow", "Двухлинейная"))
-        self.comboBox.setItemText(2, _translate("MainWindow", "Криволинейная"))
-        self.label.setText(_translate("MainWindow", "Бетон"))
-        self.pushButton.setText(_translate("MainWindow", "PushButton"))
-        self.pushButton_2.setText(_translate("MainWindow", "PushButton"))
-        self.pushButton_3.setText(_translate("MainWindow", "PushButton"))
-        self.pushButton_4.setText(_translate("MainWindow", "PushButton"))
-        self.pushButton_5.setText(_translate("MainWindow", "PushButton"))
-        self.pushButton_6.setText(_translate("MainWindow", "PushButton"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Tab 1"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Tab 2"))
-        self.menu.setTitle(_translate("MainWindow", "Файл"))
-        self.action.setText(_translate("MainWindow", "Сраный"))
-        self.action_2.setText(_translate("MainWindow", "Обосраный"))
-        self.createProj.setText(_translate("MainWindow", "Создать"))
+        self.actNewBeton = QtWidgets.QAction("Добавить бетон", None)
+        self.actNewBeton.triggered.connect(self.on_createBeton)
+        self.menuBeton.addAction(self.actNewBeton)
+        self.actEditBeton = QtWidgets.QAction("Изменить бетон", None)
+        self.actEditBeton.triggered.connect(self.on_editBeton)
+        self.menuBeton.addAction(self.actEditBeton)
+
+        self.actNewArm = QtWidgets.QAction("Добавить арматуру", None)
+        self.actNewArm.triggered.connect(self.on_createArm)
+        self.menuArm.addAction(self.actNewArm)
+        self.actEditArm = QtWidgets.QAction("Изменить арматуру", None)
+        self.actEditArm.triggered.connect(self.on_editArm)
+        self.menuArm.addAction(self.actEditArm)
+
+        self.menuImport = QtWidgets.QMenu("&Импорт")
+        self.menuElems = QtWidgets.QMenu("&Элементы")
+        self.menuFes = QtWidgets.QMenu("&Участки")
+        self.menuSect = QtWidgets.QMenu("&Поперечные сечения")
+        self.menuCrackResist = QtWidgets.QMenu("&Трещиностойкость")
+        self.menuHelp = QtWidgets.QMenu("&Помощь")
+
+        self.menuBar().addMenu(self.menuFile)
+        self.menuBar().addMenu(self.menuMaterials)
+        self.menuBar().addMenu(self.menuImport)
+        self.menuBar().addMenu(self.menuElems)
+        self.menuBar().addMenu(self.menuFes)
+        self.menuBar().addMenu(self.menuSect)
+        self.menuBar().addMenu(self.menuCrackResist)
+        self.menuBar().addMenu(self.menuHelp)
+
+    def on_open(self):
+        f = QtWidgets.QFileDialog.getOpenFileName(parent=self, caption=" Открыть проект ",
+                                                  filter="All (*) ;;NDMProjects (*.ndm) ",
+                                                  initialFilter="NDMProjects (*.ndm)")
+        if f[0] == '' or type(f[0]) == None:
+            return
+
+        with open(f[0], "rb") as file:
+            self.prj = pickle.load(file)
+
+        #self.prj = Project(f[0])
+        print("Открыт проект " + f[0])
+        self.statusBar().showMessage(f[0])
+
+    def on_new(self):
+        result = QtWidgets.QMessageBox.warning(self, "Внимание",
+                                               "Сохранить внесенные изменения в текущий проект?",
+                                               buttons=QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No |
+                                               QtWidgets.QMessageBox.Cancel,
+                                               defaultButton=QtWidgets.QMessageBox.Cancel)
+        if result == 16384:
+            self.on_save()
+
+        file = QtWidgets.QFileDialog.getSaveFileName(parent=self, caption=" Создать проект ",
+                                                     filter="All (*) ;;NDMProjects (*.ndm) ",
+                                                     initialFilter="NDMProjects (*.ndm)")
+
+        if file[0] == '' or type(file[0]) == None:
+            return
+
+        self.prj = Project(file[0])
+        print("Создан новый проект " + file[0])
+
+    def on_save(self):
+
+        if self.prj.name == 'temp' or self.prj.name == '':
+            file = QtWidgets.QFileDialog.getSaveFileName(parent=self, caption=" Сохранить проект ",
+                                                         filter="All (*) ;;NDMProjects (*.ndm) ",
+                                                         initialFilter="NDMProjects (*.ndm)")
+            if file[0] == '' or type(file[0]) == None:
+                return
+
+            self.prj.name = file[0]
+            with open(self.prj.name, "wb") as file:
+                pickle.dump(self.prj, file)
+            print("Текущий проект сохранен " + self.prj.name)
+        else:
+            with open(self.prj.name, "wb") as file:
+                pickle.dump(self.prj, file)
+            print("Текущий проект сохранен " + self.prj.name)
+
+    def on_saveas(self):
+        file = QtWidgets.QFileDialog.getSaveFileName(parent=self, caption=" Сохранить проект ",
+                                                     filter="All (*) ;;NDMProjects (*.ndm) ",
+                                                     initialFilter="NDMProjects (*.ndm)")
+
+        if file[0] == '' or type(file[0]) == None:
+            return
+
+        self.prj.name = file[0]
+        with open(self.prj.name, "wb") as file:
+            pickle.dump(self.prj, file, protocol=4)
+        print("Текущий проект сохранен как " + self.prj.name)
+
+    def on_quit(self):
+        result = QtWidgets.QMessageBox.warning(self, "Внимание!",
+                                               "Вы закрываете приложение без сохранения введенных данных \nСохранить внесенные изменения в текущий проект?",
+                                               buttons=QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                               defaultButton=QtWidgets.QMessageBox.No)
+        if result == 16384:
+            self.on_save()
+        QtWidgets.qApp.quit()
+
+    def on_clicked(self):
+        result = QtWidgets.QMessageBox.warning(self, "Внимание",
+                                               "Сохранить внесенные изменения в текущий проект?",
+                                               buttons=QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No |
+                                               QtWidgets.QMessageBox.Cancel,
+                                               defaultButton=QtWidgets.QMessageBox.Cancel)
+        print(result)
+
+    def on_createBeton(self):
+        w = BetonCreator(self.prj, self)
+        w.setWindowModality(QtCore.Qt.WindowModal)
+        w.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+        w.setFixedWidth(300)
+        w.show()
+
+    def on_editBeton(self):
+        w = BetonEditor(self.prj, self)
+        w.setWindowModality(QtCore.Qt.WindowModal)
+        w.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+        w.setFixedWidth(300)
+        w.show()
+
+    def on_createArm(self):
+        w = ArmCreator(self.prj, self)
+        w.setWindowModality(QtCore.Qt.WindowModal)
+        w.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+        w.setFixedWidth(300)
+        w.show()
+
+    def on_editArm(self):
+        pass
+
+    def on_settings(self):
+        pass
+
+        # def add_tool_bar(self):
+    #     self.toolBar = QtWidgets.QToolBar("MyToolBar")
+    #     ico = self.style().standardIcon(
+    #         QtWidgets.QStyle.SP_MessageBoxCritical)
+    #     self.actClose = self.toolBar.addAction(ico, "Close",
+    #                                            QtWidgets.qApp.quit)
+    #     self.actClose.setShortcut(QtGui.QKeySequence.Close)
+    #     self.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
+    #     #self.addToolBarBreak(QtCore.Qt.TopToolBarArea)
+    #     self.toolBar2 = QtWidgets.QToolBar("MyToolBar2")
+    #     ico2 = self.style().standardIcon(
+    #         QtWidgets.QStyle.SP_DialogCloseButton)
+    #     self.actQuit = self.toolBar2.addAction(ico2, "Quit",
+    #                                            QtWidgets.qApp.quit)
+    #     self.actQuit.setShortcut(QtGui.QKeySequence.Quit)
+    #     #self.insertToolBar(self.toolBar, self.toolBar2)
+    #     self.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar2)
+    #     #self.insertToolBarBreak(self.toolBar2)
+
+    # def add_dock_widget(self):
+    #     self.dw = QtWidgets.QDockWidget("MyDockWidget1")
+    #     self.lbl = QtWidgets.QLabel("Содержимое панели 1")
+    #     self.lbl.setWordWrap(True)
+    #     self.lbl.setFrameStyle(
+    #         QtWidgets.QFrame.Box | QtWidgets.QFrame.Plain)
+    #     self.dw.setWidget(self.lbl)
+    #     self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.dw)
+
+    #     self.dw2 = QtWidgets.QDockWidget("MyDockWidget2")
+    #     self.lbl2 = QtWidgets.QLabel("Содержимое панели 2")
+    #     self.lbl2.setWordWrap(True)
+    #     self.lbl2.setFrameStyle(
+    #         QtWidgets.QFrame.Box | QtWidgets.QFrame.Plain)
+    #     self.dw2.setWidget(self.lbl2)
+    #     self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.dw2,
+    #                        QtCore.Qt.Vertical)

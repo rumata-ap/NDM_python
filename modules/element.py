@@ -13,7 +13,8 @@ class Fe:
     number: int
     sections = []
     stiff: pd.DataFrame
-    typeFe: str #'bar' или 'plate'
+    typeFe: str  #'bar' или 'plate'
+    selectedSect: cs.CrossSect
 
 
 class FeBar(Fe):
@@ -34,7 +35,7 @@ class FeBar(Fe):
 
 class FePlate(Fe):
     nodes: list
-    contour: cs.Сontour
+    contour: cs.Contour
 
 
 # %%

@@ -1,18 +1,24 @@
 # %%
+import sys
+import copy
+import pickle
+from PyQt5 import QtCore, QtWidgets, QtGui
 import pandas as pd
 import numpy as np
 import plotly.express as px
 from modules.linearInterpolation import linterp1d
+#from modules.project import Project
 
 
 # %%
 
 class Beton:
-    descript = ''
-    number: int
     # конструктор
-    def __init__(self, classB, typdiagB, vlag):
+    def __init__(self, classB, typdiagB, vlag, gb3=1):
         self.classB = classB
+        self.gamma_b_3 = gb3
+        self.number = None
+        self.descript = ''
         self.type = typdiagB
         self.vlag = vlag
         self.src = self.selectBeton(typdiagB, classB, vlag)
@@ -22,8 +28,8 @@ class Beton:
         self.frameNL = self.src[self.src.Action == 'NL']
 
         self.epsC = self.frameC.ε.to_numpy()
-        self.sigC = self.frameC.σ.to_numpy().astype(float)
-
+        self.sigC = self.frameC.σ.to_numpy().astype(float)      
+            
         self.epsCL = self.frameCL.ε.to_numpy()
         self.sigCL = self.frameCL.σ.to_numpy().astype(float)
 
@@ -32,6 +38,14 @@ class Beton:
 
         self.epsNL = self.frameNL.ε.to_numpy()
         self.sigNL = self.frameNL.σ.to_numpy().astype(float)
+
+        if self.gamma_b_3 != 1.:
+            for i in range(len(self.sigC)):
+                if self.sigC[i] > 0:
+                    self.sigC[i] = self.sigC[i] * self.gamma_b_3
+            for i in range(len(self.sigCL)):
+                if self.sigCL[i] > 0:
+                    self.sigCL[i] = self.sigCL[i] * self.gamma_b_3
 
         self.int_C = linterp1d(self.epsC, self.sigC)
         self.int_CL = linterp1d(self.epsCL, self.sigCL)
@@ -100,3 +114,190 @@ class Beton:
             return sigB_NL
 
 # %%
+
+
+class BetonCreator(QtWidgets.QWidget):
+    def __init__(self, prj, parent=None):
+        QtWidgets.QWidget.__init__(self, parent, QtCore.Qt.Window)
+        self.prj: Project = prj
+        self.setWindowTitle('Параметры бетона')
+        self.labelClass = QtWidgets.QLabel("Класс:")
+        self.labelVlag = QtWidgets.QLabel("Влажность среды:")
+        self.labelDiagr = QtWidgets.QLabel("Диаграмма деформирования:")
+        self.labelGamma_b_3 = QtWidgets.QLabel("Коэффициент γb3:")
+        self.labelDescript = QtWidgets.QLabel("Описание:")
+        self.labelNumber = QtWidgets.QLabel("Номер:")
+        self.teDescript = QtWidgets.QTextEdit('Бетон:', self)
+        self.teDescript.setFixedHeight(50)
+        self.cbClass = QtWidgets.QComboBox(self)
+        self.cbClass.addItems(
+            ['B10', 'B15', 'B20', 'B25', 'B30', 'B35', 'B40', 'B45', 'B50', 'B55', 'B60'])
+        self.cbClass.setCurrentText('B25')
+        self.cbDiagr = QtWidgets.QComboBox(self)
+        self.cbDiagr.addItems(['Трехлинейная', 'Двухлинейная'])
+        self.cbVlag = QtWidgets.QComboBox(self)
+        self.cbVlag.addItems(["Ниже 40%", "40% - 75%", "Выше 75%"])
+        self.cbVlag.setCurrentIndex(1)
+        self.cbGamma_b_3 = QtWidgets.QComboBox(self)
+        self.cbGamma_b_3.addItems(['1.0', '0.85'])
+
+        #self.lineGamma_b_3 = QtWidgets.QLineEdit('1.0', self)
+        #validator = QtGui.QDoubleValidator(0.1, 1, 2, self)
+        #validator.setNotation(QtGui.QDoubleValidator.StandardNotation)
+        #self.lineGamma_b_3.setValidator(validator)
+        #self.lineGamma_b_3.setAlignment(QtCore.Qt.AlignCenter)
+        self.btnCreate = QtWidgets.QPushButton('Создать')
+        self.btnCreate.clicked.connect(self.addBeton)
+        self.spinNumber = QtWidgets.QSpinBox(self)
+        self.spinNumber.setRange(1, 100000)
+        self.spinNumber.setAlignment(QtCore.Qt.AlignCenter)
+        if len(self.prj.materials['b']) > 0:
+            self.spinNumber.setValue(self.prj.selectedBeton.number + 1)
+        else:            
+            self.spinNumber.setValue(1)
+
+        self.hbox = QtWidgets.QHBoxLayout()
+        self.hbox.addWidget(self.labelNumber)
+        self.hbox.addWidget(self.spinNumber)
+
+        self.hbox2 = QtWidgets.QHBoxLayout()
+        self.hbox2.addWidget(self.labelDescript)
+        self.hbox2.addWidget(self.teDescript)
+
+        self.hbox1 = QtWidgets.QHBoxLayout()
+        self.hbox1.addWidget(self.labelGamma_b_3)
+        self.hbox1.addWidget(self.cbGamma_b_3)
+
+        self.box = QtWidgets.QVBoxLayout()
+        self.box.addLayout(self.hbox)
+        self.box.addWidget(self.labelClass)
+        self.box.addWidget(self.cbClass)
+        self.box.addWidget(self.labelDiagr)
+        self.box.addWidget(self.cbDiagr)
+        self.box.addWidget(self.labelVlag)
+        self.box.addWidget(self.cbVlag)
+        self.box.addLayout(self.hbox1)
+        self.box.addLayout(self.hbox2)
+        self.box.addWidget(self.btnCreate)
+
+        self.setLayout(self.box)
+
+    def addBeton(self):
+        ic = self.cbClass.currentIndex()
+        dc = self.teDescript.toPlainText()+'\nкласс - '+self.cbClass.currentText()
+        it = self.cbDiagr.currentIndex() + 1
+        dc = dc+'\nдиаграмма - '+self.cbDiagr.currentText()
+        iv = self.cbVlag.currentIndex() + 1
+        dc = dc + '\nвлажность среды - ' + self.cbVlag.currentText()
+        gb3 = float(self.cbGamma_b_3.currentText())
+        dc = dc + '\nγb3 - ' + self.cbGamma_b_3.currentText()
+        clsB = (10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60)
+        bet = Beton(clsB[ic], it, iv, gb3)
+        bet.number = self.spinNumber.value()
+        bet.descript = dc
+        self.prj.materials['b'].append(bet)
+        self.prj.selectedBeton = bet
+        #self.teDescript.setPlainText(dc)
+        self.spinNumber.stepUp()
+
+
+class BetonEditor(QtWidgets.QWidget):
+    def __init__(self, prj, parent=None):
+        QtWidgets.QWidget.__init__(self, parent, QtCore.Qt.Window)
+        self.prj: Project = prj
+        self.setWindowTitle('Параметры бетона')
+        self.labelClass = QtWidgets.QLabel("Класс:")
+        self.labelVlag = QtWidgets.QLabel("Влажность среды:")
+        self.labelDiagr = QtWidgets.QLabel("Диаграмма деформирования:")
+        self.labelGamma_b_3 = QtWidgets.QLabel("Коэффициент γb3:")
+        self.labelDescript = QtWidgets.QLabel("Описание:")
+        self.labelNumber = QtWidgets.QLabel("Номер:")
+        self.teDescript = QtWidgets.QTextEdit('Бетон:', self)
+        self.teDescript.setFixedHeight(50)
+        self.cbClass = QtWidgets.QComboBox(self)
+        self.cbClass.addItems(
+            ['B10', 'B15', 'B20', 'B25', 'B30', 'B35', 'B40', 'B45', 'B50', 'B55', 'B60'])
+        self.cbClass.setCurrentText('B25')
+        self.cbDiagr = QtWidgets.QComboBox(self)
+        self.cbDiagr.addItems(['Трехлинейная', 'Двухлинейная'])
+        self.cbVlag = QtWidgets.QComboBox(self)
+        self.cbVlag.addItems(["Ниже 40%", "40% - 75%", "Выше 75%"])
+        self.cbVlag.setCurrentIndex(1)
+        self.cbGamma_b_3 = QtWidgets.QComboBox(self)
+        self.cbGamma_b_3.addItems(['1.0', '0.85'])
+        self.cbNums = QtWidgets.QComboBox(self)
+
+        if len(self.prj.materials['b']) > 0:
+            contentNums = []
+            for i in range(len(self.prj.materials['b'])):
+                contentNums.append(str(self.prj.materials['b'][i].number))
+            self.cbNums.addItems(contentNums)
+            self.cbNums.setCurrentText(str(self.prj.selectedBeton.number))
+            self.cbClass.setCurrentText(
+                'B' + str(self.prj.selectedBeton.classB))
+            self.cbDiagr.setCurrentIndex(self.prj.selectedBeton.type - 1)
+            self.cbVlag.setCurrentIndex(self.prj.selectedBeton.vlag - 1)
+            self.teDescript.setPlainText(self.prj.selectedBeton.descript)
+            self.cbGamma_b_3.setCurrentText(
+                str(self.prj.selectedBeton.gamma_b_3))
+
+        self.cbNums.activated.connect(self.on_changeNum)
+
+        self.btnEdit = QtWidgets.QPushButton('Изменить')
+        self.btnEdit.clicked.connect(self.editBeton)
+
+        self.hbox = QtWidgets.QHBoxLayout()
+        self.hbox.addWidget(self.labelNumber)
+        self.hbox.addWidget(self.cbNums)
+
+        self.hbox2 = QtWidgets.QHBoxLayout()
+        self.hbox2.addWidget(self.labelDescript)
+        self.hbox2.addWidget(self.teDescript)
+
+        self.hbox1 = QtWidgets.QHBoxLayout()
+        self.hbox1.addWidget(self.labelGamma_b_3)
+        self.hbox1.addWidget(self.cbGamma_b_3)
+
+        self.box = QtWidgets.QVBoxLayout()
+        self.box.addLayout(self.hbox)
+        self.box.addWidget(self.labelClass)
+        self.box.addWidget(self.cbClass)
+        self.box.addWidget(self.labelDiagr)
+        self.box.addWidget(self.cbDiagr)
+        self.box.addWidget(self.labelVlag)
+        self.box.addWidget(self.cbVlag)
+        self.box.addLayout(self.hbox1)
+        self.box.addLayout(self.hbox2)
+        self.box.addWidget(self.btnEdit)
+
+        self.setLayout(self.box)
+
+    def editBeton(self):
+        if len(self.prj.materials['b']) == 0:
+            return
+        ic = self.cbClass.currentIndex()
+        dc = self.teDescript.toPlainText() + '\nкласс - ' + self.cbClass.currentText()
+        it = self.cbDiagr.currentIndex() + 1
+        dc = dc + '\nдиаграмма - ' + self.cbDiagr.currentText()
+        iv = self.cbVlag.currentIndex() + 1
+        dc = dc + '\nвлажность среды - ' + self.cbVlag.currentText()
+        gb3 = float(self.cbGamma_b_3.currentText())
+        dc = dc+'\nγb3 - '+self.cbGamma_b_3.currentText()
+        clsB = (10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60)
+        bet = Beton(clsB[ic], it, iv, gb3)
+        bet.number = int(self.cbNums.currentText())
+        bet.descript = dc
+        self.prj.materials['b'][self.cbNums.currentIndex()] = bet
+        self.prj.selectedBeton = self.prj.materials['b'][self.cbNums.currentIndex(
+        )]
+        #self.teDescript.setPlainText(dc)
+
+    def on_changeNum(self):
+        self.prj.selectedBeton = self.prj.materials['b'][self.cbNums.currentIndex()]
+        self.cbClass.setCurrentText(
+            'B' + str(self.prj.selectedBeton.classB))
+        self.cbDiagr.setCurrentIndex(self.prj.selectedBeton.type - 1)
+        self.cbVlag.setCurrentIndex(self.prj.selectedBeton.vlag - 1)
+        self.cbGamma_b_3.setCurrentText(str(self.prj.selectedBeton.gamma_b_3))
+        self.teDescript.setPlainText('Бетон: ')
+        #self.teDescript.setPlainText(self.prj.selectedBeton.descript)

@@ -48,11 +48,12 @@ class BoundingBox:
 # %%
 
 
-class Сontour:
+class Contour:
     def __init__(self, num: int, nodes=[], attr={}):
         self.num = num
         self.nodes = nodes
         self.attr = attr
+        self.segs = []
 
     def area(self):
         temp = 0.
@@ -79,6 +80,24 @@ class Сontour:
             self.Centr = temp
             return temp
 
+    def getI(self):
+        if len(self.segs)<3:
+            return
+
+        tempX = 0
+        tempY = 0
+        for seg in self.segs:           
+            arrTemp: Point3d = seg.i
+            arrTemp1: Point3d = seg.j
+            tempX = tempX + arrTemp.X**2 + arrTemp.X * arrTemp1.X + \
+                arrTemp1.X**2 * (arrTemp.X * arrTemp1.Y -
+                                 arrTemp.Y * arrTemp1.X)
+            tempY = tempY + arrTemp.Y**2 + arrTemp.Y * arrTemp1.Y + \
+                arrTemp1.Y**2 * (arrTemp.X * arrTemp1.Y -
+                                 arrTemp.Y * arrTemp1.X)
+        
+        return tempX/12, tempY/12            
+
     def createSegments(self):
         self.segs = []
         for i in range(0, len(self.nodes) - 1):
@@ -101,7 +120,7 @@ class Сontour:
         return self.BB
 
     def copy(self):
-        return Сontour(self.num, self.nodes.copy(), self.segs.copy())
+        return Contour(self.num, self.nodes.copy(), self.segs.copy())
 
     def triangulate(self, n=100):
         area = self.area()
@@ -160,7 +179,7 @@ class Basis:
         pl = Plane(self.ε1, self.ε2, self.ε3)
         return pl.inerpolate(x, y)
 
-    def epsCntr(self, cnt: Сontour):
+    def epsCntr(self, cnt: Contour):
         pl = Plane(self.ε1, self.ε2, self.ε3)
         for i in range(0, len(cnt.nodes)):
             cnt.nodes[i].Z = pl.inerpolate(cnt.nodes[i].X, cnt.nodes[i].Y)
@@ -179,21 +198,20 @@ class ArmTmpl_3x3:
 
 
 # %%
-class LoadNDM:
-    N = 0.
-    Mx = 0.
-    My = 0.
-    attr = {}
-
-
-# %%
 
 
 class CrossSect:
     loads = {'C': [], 'CL': [], 'N': [], 'NL': []}
     number: int
+    contour: Contour
 
     def functional(self, act='C', trg=False, nt=60):
+        raise NotImplementedError
+
+    def getIb(self):
+        raise NotImplementedError
+
+    def getIs(self):
         raise NotImplementedError
 
 
@@ -224,7 +242,7 @@ class RectSect(CrossSect):
         self.armatura: Armatura = Armatura('A500')
         nds = [Node(1, b / 2, -h / 2), Node(2, b / 2, h / 2),
                Node(3, -b / 2, h / 2), Node(4, -b / 2, -h / 2)]
-        self.contour = Сontour(1, nds)
+        self.contour = Contour(1, nds)
         self.contour.createSegments()
 
     def setMaterials(self, bet: Beton, reinf: Armatura):
@@ -247,7 +265,7 @@ class RectSect(CrossSect):
             minEps = self.beton.epsNL[0]
 
         nodesTemp = []
-        integrateContour: Сontour = self.contour.copy()
+        integrateContour: Contour = self.contour.copy()
         eps = []
         for i in range(0, len(self.contour.segs)):
             eps.append(self.contour.nodes[i].Z)
@@ -331,6 +349,14 @@ class RectSect(CrossSect):
         Mx = intBX - intBAX + intAX
         My = intBY - intBAY + intAY
         return N, Mx, My
+
+    def getIb(self):
+        return self.contour.getI()
+
+    def getIs(self):
+        ix = self.Xs * self.Xs * self.As
+        iy = self.Ys * self.Ys * self.As
+        return ix, iy        
 
 
 # # %%
