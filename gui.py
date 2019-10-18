@@ -2,7 +2,7 @@
 import sys, copy, pickle
 from PyQt5 import QtCore, QtWidgets, QtGui
 #from modules.project import Project
-from modules.MainWindow import MyWindow
+from modules.mainWindow import MyWindow
 #ptj = Project('tmp')
 
 
