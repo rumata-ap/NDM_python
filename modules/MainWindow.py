@@ -5,7 +5,7 @@ import pickle
 from PyQt5 import QtCore, QtWidgets, QtGui
 from modules.project import Project
 from modules.betonSelector import BetonCreator, BetonEditor
-from modules.armSelector import ArmCreator
+from modules.armSelector import ArmCreator, ArmEditor
 
 w = None
 
@@ -209,7 +209,11 @@ class MyWindow(QtWidgets.QMainWindow):
         w.show()
 
     def on_editArm(self):
-        pass
+        w = ArmEditor(self.prj, self)
+        w.setWindowModality(QtCore.Qt.WindowModal)
+        w.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+        w.setFixedWidth(300)
+        w.show()
 
     def on_settings(self):
         pass
