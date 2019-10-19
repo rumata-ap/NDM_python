@@ -7,7 +7,7 @@ import numpy as np
 import plotly.express as px
 from modules.linearInterpolation import linterp1d
 from PyQt5 import QtCore, QtWidgets, QtGui
-#from modules.project import Project
+from modules.project import Project
 
 # %% Диаграммы деформирования
 

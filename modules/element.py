@@ -1,28 +1,22 @@
 # %%
-import pandas as pd
-import numpy as np
-import pickle
 import modules.geometry as geo
 import modules.crossects as cs
-# import Lira.rsu_lira_parser as lp
 from math import sqrt
 
 
 # %%
-class Fe:
-    number: int
-    sections = []
-    stiff: pd.DataFrame
-    typeFe: str  #'bar' или 'plate'
-    selectedSect: cs.CrossSect
+class Fe(object):
+    def __init__(self):
+        self.number = 0
+        self.sections = []
+        self.stiff = 0
+        self.typeFe: str = ''  # 'bar' или 'shell'
+        self.length = 0
+        self.area = 0
 
 
 class FeBar(Fe):
-    i: cs.Node
-    j: cs.Node
-    length: float
-
-    def __init__(self, s=cs.Node(), e=cs.Node()):
+    def __init__(self, s=cs.Node, e=cs.Node):
         self.i = s
         self.j = e
         self.getLenght()
@@ -33,32 +27,39 @@ class FeBar(Fe):
         return self.length
 
 
-class FePlate(Fe):
-    nodes: list
-    contour: cs.Contour
+class FeShell(Fe):
+    def __init__(self, nodes=[]):
+        self.nodes = nodes
+        self.contour = cs.Contour(1, nodes)
 
 
 # %%
 
 class Element:
-    number: int
-    elType = ''
-    desript: str
-    fes: list
-    selectedFe: Fe
-
-    def __init__(self, number):
+    def __init__(self, number, length=0):
         self.fes = []
         self.number = number
         self.desript = ''
-
-    def getRSU(self, parameter_list):
-        pass
+        self.typeEl = ''
+        self.length = length
 
     def getFesNumbers(self):
         res = []
         for item in self.fes:
             res.append(item.number)
         return res
+
+    def getLength(self):
+        l = 0
+
+        if len(self.fes) == 0:
+            return l
+        
+        else:
+            for item in self.fes:
+                if item.typeFe == 'bar':
+                    l = l + item.length
+            return l
+
 
 # %%

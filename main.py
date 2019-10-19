@@ -1,15 +1,10 @@
 # %%
-#from PyQt5 import QtCore, QtWidgets
-#from MainWindow import Ui_MainWindow
 import pickle
 import sys
-
 from PyQt5 import QtWidgets
-
-import gui
-from gui import prj
-from modules.element import Element, Fe, FeBar, FePlate
+from modules.element import Element, Fe, FeBar, FeShell
 from modules.project import Project
+from modules.mainWindow import MyWindow
 
 # %%
 
@@ -96,8 +91,10 @@ def main():
 
 def GUI():
     app = QtWidgets.QApplication(sys.argv)
-    window = gui.MyWindow()
+    window = MyWindow()
+    #window.setWindowTitle("Класс QMainWindow")
     window.resize(680, 70)
+
     window.show()
     sys.exit(app.exec_())
 

@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 from modules.linearInterpolation import linterp1d
-#from modules.project import Project
+from modules.project import Project
 
 
 # %%
@@ -28,8 +28,8 @@ class Beton:
         self.frameNL = self.src[self.src.Action == 'NL']
 
         self.epsC = self.frameC.ε.to_numpy()
-        self.sigC = self.frameC.σ.to_numpy().astype(float)      
-            
+        self.sigC = self.frameC.σ.to_numpy().astype(float)
+
         self.epsCL = self.frameCL.ε.to_numpy()
         self.sigCL = self.frameCL.σ.to_numpy().astype(float)
 
@@ -51,7 +51,7 @@ class Beton:
         self.int_CL = linterp1d(self.epsCL, self.sigCL)
         self.int_N = linterp1d(self.epsN, self.sigN)
         self.int_NL = linterp1d(self.epsNL, self.sigNL)
-    
+
     def selectBeton(self, t, c, v):
         src = pd.read_csv('Бетон_диаграммы.csv', ';')
         return src.query('Vlaga == {} and Class=={} and Type =={}'.format(v, c, t))
@@ -61,15 +61,15 @@ class Beton:
         c = c[c.Action != "NL"]
         fig = px.line(c, x="ε", y="σ_MPa", color='Action', text='Text')
         fig.update_layout(width=600, height=400,
-                        title='Расчетные (CL - при длительном действии нагрузок)')
+                          title='Расчетные (CL - при длительном действии нагрузок)')
         fig.show()
         c = self.src[self.src.Action != "C"]
         c = c[c.Action != "CL"]
         fig = px.line(c, x="ε", y="σ_MPa", color='Action', text='Text')
         fig.update_layout(width=600, height=400,
-                        title='Норматривные (NL - при длительном действии нагрузок)')
+                          title='Норматривные (NL - при длительном действии нагрузок)')
         fig.show()
-    
+
     def sig(self, e, act='C'):
         """
         Возвращает кортеж напряжений в бетоне согласно 
@@ -143,17 +143,17 @@ class BetonCreator(QtWidgets.QWidget):
 
         #self.lineGamma_b_3 = QtWidgets.QLineEdit('1.0', self)
         #validator = QtGui.QDoubleValidator(0.1, 1, 2, self)
-        #validator.setNotation(QtGui.QDoubleValidator.StandardNotation)
-        #self.lineGamma_b_3.setValidator(validator)
-        #self.lineGamma_b_3.setAlignment(QtCore.Qt.AlignCenter)
+        # validator.setNotation(QtGui.QDoubleValidator.StandardNotation)
+        # self.lineGamma_b_3.setValidator(validator)
+        # self.lineGamma_b_3.setAlignment(QtCore.Qt.AlignCenter)
         self.btnCreate = QtWidgets.QPushButton('Создать')
         self.btnCreate.clicked.connect(self.addBeton)
         self.spinNumber = QtWidgets.QSpinBox(self)
         self.spinNumber.setRange(1, 100000)
         self.spinNumber.setAlignment(QtCore.Qt.AlignCenter)
         if len(self.prj.materials['b']) > 0:
-            self.spinNumber.setValue(self.prj.selectedBeton.number + 1)
-        else:            
+            self.spinNumber.setValue(len(self.prj.materials['b'])+1)
+        else:
             self.spinNumber.setValue(1)
 
         self.hbox = QtWidgets.QHBoxLayout()
@@ -195,9 +195,9 @@ class BetonCreator(QtWidgets.QWidget):
         bet = Beton(clsB[ic], it, iv, gb3)
         bet.number = self.spinNumber.value()
         bet.descript = dc
-        self.prj.materials['b'].append(bet)
+        self.prj.materials['b'][bet.number] = bet
         self.prj.selectedBeton = bet
-        #self.teDescript.setPlainText(dc)
+        # self.teDescript.setPlainText(dc)
         self.spinNumber.stepUp()
 
 
@@ -228,9 +228,7 @@ class BetonEditor(QtWidgets.QWidget):
         self.cbNums = QtWidgets.QComboBox(self)
 
         if len(self.prj.materials['b']) > 0:
-            contentNums = []
-            for i in range(len(self.prj.materials['b'])):
-                contentNums.append(str(self.prj.materials['b'][i].number))
+            contentNums = self.prj.materials['b'].keys()
             self.cbNums.addItems(contentNums)
             self.cbNums.setCurrentText(str(self.prj.selectedBeton.number))
             self.cbClass.setCurrentText(
@@ -287,17 +285,18 @@ class BetonEditor(QtWidgets.QWidget):
         bet = Beton(clsB[ic], it, iv, gb3)
         bet.number = int(self.cbNums.currentText())
         bet.descript = dc
-        self.prj.materials['b'][self.cbNums.currentIndex()] = bet
-        self.prj.selectedBeton = self.prj.materials['b'][self.cbNums.currentIndex(
-        )]
-        #self.teDescript.setPlainText(dc)
+        self.prj.materials['b'][int(self.cbNums.currentText())] = bet
+        self.prj.selectedBeton = self.prj.materials['b'][int(
+            self.cbNums.currentText())]
+        # self.teDescript.setPlainText(dc)
 
     def on_changeNum(self):
-        self.prj.selectedBeton = self.prj.materials['b'][self.cbNums.currentIndex()]
+        self.prj.selectedBeton = self.prj.materials['b'][int(
+            self.cbNums.currentText())]
         self.cbClass.setCurrentText(
             'B' + str(self.prj.selectedBeton.classB))
         self.cbDiagr.setCurrentIndex(self.prj.selectedBeton.type - 1)
         self.cbVlag.setCurrentIndex(self.prj.selectedBeton.vlag - 1)
         self.cbGamma_b_3.setCurrentText(str(self.prj.selectedBeton.gamma_b_3))
         self.teDescript.setPlainText('Бетон: ')
-        #self.teDescript.setPlainText(self.prj.selectedBeton.descript)
+        # self.teDescript.setPlainText(self.prj.selectedBeton.descript)

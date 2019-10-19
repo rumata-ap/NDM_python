@@ -1,6 +1,4 @@
-from modules.element import Element, Fe, FeBar, FePlate
-from modules.betonSelector import Beton
-from modules.armSelector import Armatura
+import modules.lira_parser as lp
 
 # %%
 
@@ -9,17 +7,20 @@ class Project:
     def __init__(self, name):
         self.name = name
         self.descr = ''
-        self.nodes = []
-        self.fes = {'b': [], 's': []}
-        self.elements = []
-        self.materials = {'b': [], 'a': []}
-        self.selectedElement:Element
-        self.selectedBeton:Beton
-        self.selectedArm:Armatura
-        self.selectedFe:Fe
+        self.nodes = {}
+        self.stiffs = {}
+        self.sections = {}
+        self.loads = {'c': [], 'cl': [], 'n': [], 'nl': []}
+        self.fes = {'b': {}, 's': {}}
+        self.elements = {}
+        self.materials = {'b': {}, 'a': {}}
+        self.selectedElement = None
+        self.selectedBeton = None
+        self.selectedArm = None
+        self.selectedFe = None
+        self.selectedSect = None
 
     def getElementsNumbers(self):
-        res = []
-        for item in self.elements:
-            res.append(item.number)
-        return res
+        if len(self.elements) == 0:
+            return []
+        return self.elements.keys()

@@ -76,19 +76,23 @@ class MyWindow(QtWidgets.QMainWindow):
         self.menuArm = self.menuMaterials.addMenu('Арматура')
         # self.menuMaterials.addAction(self.actGroupBeton)
 
-        self.actNewBeton = QtWidgets.QAction("Добавить бетон", None)
+        self.actNewBeton = QtWidgets.QAction("Добавить бетон")
         self.actNewBeton.triggered.connect(self.on_createBeton)
         self.menuBeton.addAction(self.actNewBeton)
-        self.actEditBeton = QtWidgets.QAction("Изменить бетон", None)
+        self.actEditBeton = QtWidgets.QAction("Изменить бетон")
         self.actEditBeton.triggered.connect(self.on_editBeton)
         self.menuBeton.addAction(self.actEditBeton)
 
-        self.actNewArm = QtWidgets.QAction("Добавить арматуру", None)
+        self.actNewArm = QtWidgets.QAction("Добавить арматуру")
         self.actNewArm.triggered.connect(self.on_createArm)
         self.menuArm.addAction(self.actNewArm)
-        self.actEditArm = QtWidgets.QAction("Изменить арматуру", None)
+        self.actEditArm = QtWidgets.QAction("Изменить арматуру")
         self.actEditArm.triggered.connect(self.on_editArm)
         self.menuArm.addAction(self.actEditArm)
+        
+        self.menuMaterials.addSeparator()
+        self.actTables = QtWidgets.QAction("Таблицы")
+        self.menuMaterials.addAction(self.actTables)
 
         self.menuImport = QtWidgets.QMenu("&Импорт")
         self.menuElems = QtWidgets.QMenu("&Элементы")
