@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from PyQt5 import QtWidgets, QtGui
 import modules.lira_parser as lp
 
 # %%
@@ -10,7 +12,8 @@ class Project:
         self.nodes = {}
         self.stiffs = {}
         self.sections = {}
-        self.loads = {'c': [], 'cl': [], 'n': [], 'nl': []}
+        self.contours = {}
+        self.loads = {'c': {}, 'cl': {}, 'n': {}, 'nl': {}}
         self.fes = {'b': {}, 's': {}}
         self.elements = {}
         self.materials = {'b': {}, 'a': {}}
@@ -19,6 +22,7 @@ class Project:
         self.selectedArm = None
         self.selectedFe = None
         self.selectedSect = None
+        self.selectedLoadsGroup = None
 
     def getElementsNumbers(self):
         if len(self.elements) == 0:

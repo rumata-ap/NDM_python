@@ -2,13 +2,13 @@ from modules.element import Element
 
 # %%
 class LoadNDM:
-    def __init__(self, n=0., mx=0., my=0.):
-        self.N = n
-        self.Mx = mx
-        self.My = my
-        self.N_ = n
-        self.Mx_ = mx
-        self.My_ = my
+    def __init__(self):
+        self.N = None
+        self.Mx = None
+        self.My = None
+        self.N_ = None
+        self.Mx_ = None
+        self.My_ = None
         self.attr = {}
 
     def getNu(self, el:Element):

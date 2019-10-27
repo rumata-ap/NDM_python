@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>FormLoadsCrossSection</class>
+ <widget class="QWidget" name="FormLoadsCrossSection">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Усилия в сечении</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -262,6 +265,14 @@
         </layout>
        </widget>
        <widget class="QWidget" name="pageCL">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>411</width>
+          <height>169</height>
+         </rect>
+        </property>
         <attribute name="label">
          <string>Расчетные усилия длительного действия кН, кНм</string>
         </attribute>
@@ -276,6 +287,14 @@
         </layout>
        </widget>
        <widget class="QWidget" name="pageN">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>411</width>
+          <height>169</height>
+         </rect>
+        </property>
         <attribute name="label">
          <string>Нормативные усилия кН, кНм</string>
         </attribute>

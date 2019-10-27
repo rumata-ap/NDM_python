@@ -49,10 +49,10 @@ class BoundingBox:
 
 
 class Contour:
-    def __init__(self, num: int, nodes=[], attr={}):
+    def __init__(self, num: int, nodes=[]):
         self.num = num
         self.nodes = nodes
-        self.attr = attr
+        self.attr = {}
         self.segs = []
 
     def area(self):

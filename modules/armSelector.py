@@ -8,6 +8,7 @@ import plotly.express as px
 from modules.linearInterpolation import linterp1d
 from PyQt5 import QtCore, QtWidgets, QtGui
 from modules.project import Project
+from designer.formArmsEditor import Ui_FormArmsEditor
 
 # %% Диаграммы деформирования
 
@@ -132,172 +133,93 @@ class Armatura:
             return sigA_NL
 
 
-class ArmCreator(QtWidgets.QWidget):
-    def __init__(self, prj, parent=None):
+class ArmEditorWindow(QtWidgets.QWidget):
+    def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent, QtCore.Qt.Window)
-        self.prj: Project = prj
-        self.setWindowTitle('Создание арматуры')
-        self.labelClass = QtWidgets.QLabel("Класс:")
-        # self.labelDiagr = QtWidgets.QLabel("Диаграмма деформирования:")
-        self.labelGamma_s = QtWidgets.QLabel("Коэффициент γs:")
-        self.labelDescript = QtWidgets.QLabel("Описание:")
-        self.labelNumber = QtWidgets.QLabel("Номер:")
-        self.teDescript = QtWidgets.QTextEdit('Арматура:', self)
-        self.teDescript.setFixedHeight(50)
-        self.cbClass = QtWidgets.QComboBox(self)
-        self.cbClass.addItems(
-            ['A240', 'A400', 'A500', 'B500', 'A600', 'A800', 'A1000',
-                'Bp500', 'Bp1200', 'Bp1300', 'Bp1400', 'Bp1500', 'Bp1600',
-             'K1400', 'K1500', 'K1600', 'K1700'])
-        self.cbClass.setCurrentText('A500')
+        self.prj: Project = parent.prj
 
-        self.lineGamma_s = QtWidgets.QLineEdit('1.0', self)
-        validator = QtGui.QDoubleValidator(0.1, 1, 2, self)
-        validator.setNotation(QtGui.QDoubleValidator.StandardNotation)
-        self.lineGamma_s.setValidator(validator)
-        self.lineGamma_s.setAlignment(QtCore.Qt.AlignCenter)
-        self.btnCreate = QtWidgets.QPushButton('Создать')
-        self.btnCreate.clicked.connect(self.addArm)
-        self.spinNumber = QtWidgets.QSpinBox(self)
-        self.spinNumber.setRange(1, 100000)
-        self.spinNumber.setAlignment(QtCore.Qt.AlignCenter)
+        self.form = Ui_FormArmsEditor()
+        self.form.setupUi(self)
+        form = self.form
+        form.comboBoxClass.addItems(
+            ['A240', 'A400', 'A500', 'B500', 'A600', 'A800', 'A1000',
+             'Bp500', 'Bp1200', 'Bp1300', 'Bp1400', 'Bp1500', 'Bp1600',
+             'K1400', 'K1500', 'K1600', 'K1700'])
+        form.comboBoxClass.setCurrentText('A500')
+        form.plainTextEditDescript.setPlainText('Арматура:')
         if len(self.prj.materials['a']) > 0:
-            self.spinNumber.setValue(self.prj.selectedBeton.number + 1)
+            form.spinBoxNum.setValue(self.prj.selectedArm.number + 1)
         else:
-            self.spinNumber.setValue(1)
+            form.spinBoxNum.setValue(1)
 
-        self.hbox = QtWidgets.QHBoxLayout()
-        self.hbox.addWidget(self.labelNumber)
-        self.hbox.addWidget(self.spinNumber)
+        form.pushButtonAdd.clicked.connect(self.on_add)
+        form.pushButtonEdit.clicked.connect(self.on_edit)
+        form.pushButtonDel.clicked.connect(self.on_del)
+        form.comboBoxNums.activated.connect(self.on_changeNum)
 
-        # self.hbox2 = QtWidgets.QHBoxLayout()
-        # self.hbox2.addWidget(self.labelDescript)
-        # self.hbox2.addWidget(self.teDescript)
+    def showEvent(self, е):
+        if len(self.prj.materials['a']) == 0:
+            self.form.spinBoxNum.setValue(1)
+        else:
+            keys = list(self.prj.materials['a'].keys())
+            for armsKey in self.prj.materials['a'].keys():
+                self.form.comboBoxNums.addItem(str(armsKey))
+            # self.form.spinBoxNum.setValue(keys[len(keys)-1])
 
-        self.hbox3 = QtWidgets.QHBoxLayout()
-        self.hbox3.addWidget(self.labelGamma_s)
-        self.hbox3.addWidget(self.lineGamma_s)
+        QtWidgets.QWidget.showEvent(self, е)
 
-        self.hbox1 = QtWidgets.QHBoxLayout()
-        self.hbox1.addWidget(self.labelClass)
-        self.hbox1.addWidget(self.cbClass)
-
-        self.box = QtWidgets.QVBoxLayout()
-        self.box.addLayout(self.hbox)
-        self.box.addLayout(self.hbox1)
-        self.box.addLayout(self.hbox3)
-        self.box.addWidget(self.labelDescript)
-        self.box.addWidget(self.teDescript)
-        self.box.addWidget(self.btnCreate)
-
-        self.setLayout(self.box)
-
-    def addArm(self):
-        ic = self.cbClass.currentText()
-        dc = self.teDescript.toPlainText() + '\nкласс - ' + self.cbClass.currentText()
-        gs = float(self.lineGamma_s.text())
-        dc = dc + '\nγs - ' + self.lineGamma_s.text()
+    @QtCore.pyqtSlot()
+    def on_add(self):
+        ic = self.form.comboBoxClass.currentText()
+        dc = self.form.plainTextEditDescript.toPlainText() + '\nкласс - ' + \
+            self.form.comboBoxClass.currentText()
+        gs = self.form.doubleSpinBoxGamma_s.value()
+        dc = dc + '\nγs - ' + self.form.doubleSpinBoxGamma_s.text()
         arm = Armatura(ic, gs)
-        arm.number = self.spinNumber.value()
+        arm.number = self.form.spinBoxNum.value()
+        self.form.comboBoxNums.addItem(self.form.spinBoxNum.text())
         arm.descript = dc
-        self.prj.materials['a'].append(arm)
+        self.prj.materials['a'][arm.number] = arm
         self.prj.selectedArm = arm
-        # self.teDescript.setPlainText(dc)
-        self.spinNumber.stepUp()
+        # self.teDescript.setPlainText(dc)      
+        self.form.spinBoxNum.stepUp()
 
-
-class ArmEditor(QtWidgets.QWidget):
-    def __init__(self, prj, parent=None):
-        QtWidgets.QWidget.__init__(self, parent, QtCore.Qt.Window)
-        self.prj: Project = prj
-        self.setWindowTitle('Параметры арматуры')
-        self.labelClass = QtWidgets.QLabel("Класс:")
-        # self.labelDiagr = QtWidgets.QLabel("Диаграмма деформирования:")
-        self.labelGamma_s = QtWidgets.QLabel("Коэффициент γs:")
-        self.labelDescript = QtWidgets.QLabel("Описание:")
-        self.labelNumber = QtWidgets.QLabel("Номер:")
-        self.teDescript = QtWidgets.QTextEdit('Арматура:', self)
-        self.teDescript.setFixedHeight(50)
-        self.cbClass = QtWidgets.QComboBox(self)
-        self.cbClass.addItems(
-            ['A240', 'A400', 'A500', 'B500', 'A600', 'A800', 'A1000',
-                'Bp500', 'Bp1200', 'Bp1300', 'Bp1400', 'Bp1500', 'Bp1600',
-             'K1400', 'K1500', 'K1600', 'K1700'])
-        self.cbClass.setCurrentText('A500')
-
-        self.lineGamma_s = QtWidgets.QLineEdit('1.0', self)
-        validator = QtGui.QDoubleValidator(0.1, 1, 2, self)
-        validator.setNotation(QtGui.QDoubleValidator.StandardNotation)
-        self.lineGamma_s.setValidator(validator)
-        self.lineGamma_s.setAlignment(QtCore.Qt.AlignCenter)
-        self.btnEdit = QtWidgets.QPushButton('Изменить')
-        self.btnEdit.clicked.connect(self.editArm)
-        self.cbNums = QtWidgets.QComboBox(self)
-
-        if len(self.prj.materials['a']) > 0:
-            contentNums = []
-            for i in range(len(self.prj.materials['a'])):
-                contentNums.append(str(self.prj.materials['a'][i].number))
-            self.cbNums.addItems(contentNums)
-            self.cbNums.setCurrentText(str(self.prj.selectedArm.number))
-            self.cbClass.setCurrentText(self.prj.selectedArm.classA)
-            self.teDescript.setPlainText(self.prj.selectedArm.descript)
-            self.lineGamma_s.setText(str(self.prj.selectedArm.gamma_s))
-
-        self.cbNums.activated.connect(self.on_changeNum)
-
-        self.btnEdit = QtWidgets.QPushButton('Изменить')
-        self.btnEdit.clicked.connect(self.editArm)
-
-        self.hbox = QtWidgets.QHBoxLayout()
-        self.hbox.addWidget(self.labelNumber)
-        self.hbox.addWidget(self.cbNums)
-
-        # self.hbox2 = QtWidgets.QHBoxLayout()
-        # self.hbox2.addWidget(self.labelDescript)
-        # self.hbox2.addWidget(self.teDescript)
-
-        self.hbox3 = QtWidgets.QHBoxLayout()
-        self.hbox3.addWidget(self.labelGamma_s)
-        self.hbox3.addWidget(self.lineGamma_s)
-
-        self.hbox1 = QtWidgets.QHBoxLayout()
-        self.hbox1.addWidget(self.labelClass)
-        self.hbox1.addWidget(self.cbClass)
-
-        self.box = QtWidgets.QVBoxLayout()
-        self.box.addLayout(self.hbox)
-        self.box.addLayout(self.hbox1)
-        self.box.addLayout(self.hbox3)
-        self.box.addWidget(self.labelDescript)
-        self.box.addWidget(self.teDescript)
-        self.box.addWidget(self.btnEdit)
-        self.box.addWidget(self.btnEdit)
-
-        self.setLayout(self.box)
-
-    def editArm(self):
+    @QtCore.pyqtSlot()
+    def on_edit(self):
         if len(self.prj.materials['a']) == 0:
             return
-        ic = self.cbClass.currentText()
-        dc = self.teDescript.toPlainText() + '\nкласс - ' + self.cbClass.currentText()
+        ic = self.form.comboBoxClass.currentText()
+        dc = self.form.plainTextEditDescript.toPlainText() + '\nкласс - ' + \
+            self.form.comboBoxClass.currentText()
         # it = self.cbDiagr.currentIndex() + 1
         # dc = dc + '\nдиаграмма - ' + self.cbDiagr.currentText()
         # iv = self.cbVlag.currentIndex() + 1
         # dc = dc + '\nвлажность среды - ' + self.cbVlag.currentText()
-        gs = float(self.lineGamma_s.text())
-        dc = dc+'\nγs - '+self.lineGamma_s.text()
-        arm = Armatura(ic,gs)
-        arm.number = int(self.cbNums.currentText())
+        gs = self.form.doubleSpinBoxGamma_s.value()
+        dc = dc+'\nγs - '+self.form.doubleSpinBoxGamma_s.text()
+        arm = Armatura(ic, gs)
+        arm.number = int(self.form.comboBoxNums.currentText())
         arm.descript = dc
-        self.prj.materials['a'][self.cbNums.currentIndex()] = arm
-        self.prj.selectedArm = self.prj.materials['a'][self.cbNums.currentIndex(
-        )]
-        #self.teDescript.setPlainText(dc)
+        self.prj.materials['a'][int(self.form.comboBoxNums.currentText())] = arm
+        self.prj.selectedArm = self.prj.materials['a'][int(
+            self.form.comboBoxNums.currentText())]
+        # self.teDescript.setPlainText(dc)
 
+    @QtCore.pyqtSlot()
+    def on_del(self):
+        if len(self.prj.materials['a']) > 0:
+            keys = list(self.prj.materials['a'].keys())
+            del self.prj.materials['a'][int(
+                self.form.comboBoxNums.currentText())]
+            self.form.comboBoxNums.clear()
+            for armsKey in self.prj.materials['a'].keys():
+                self.form.comboBoxNums.addItem(str(armsKey))
+
+    @QtCore.pyqtSlot()
     def on_changeNum(self):
-        self.prj.selectedArm = self.prj.materials['a'][self.cbNums.currentIndex()]
-        self.cbClass.setCurrentText(self.prj.selectedArm.classA)
-        self.lineGamma_s.setText(str(self.prj.selectedArm.gamma_s))
-        self.teDescript.setPlainText('Арматура: ')
-        #self.teDescript.setPlainText(self.prj.selectedBeton.descript)
+        self.prj.selectedArm = self.prj.materials['a'][int(
+            self.form.comboBoxNums.currentText())]
+        self.form.comboBoxClass.setCurrentText(self.prj.selectedArm.classA)
+        self.form.doubleSpinBoxGamma_s.setValue(self.prj.selectedArm.gamma_s)
+        self.form.plainTextEditDescript.setPlainText('Арматура: изм. ')
+        # self.teDescript.setPlainText(self.prj.selectedBeton.descript)

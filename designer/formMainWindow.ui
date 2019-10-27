@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>584</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Бетон НДМ</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <layout class="QVBoxLayout" name="mainVLayout">
+      <item>
+       <widget class="QStackedWidget" name="stackedWidget">
+        <widget class="QWidget" name="pageStart"/>
+        <widget class="QWidget" name="pageMaterials">
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QGroupBox" name="groupBoxBeton">
+              <property name="title">
+               <string>Бетон</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_8">
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_6">
+                 <item>
+                  <widget class="QTableView" name="tableViewBeton"/>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBoxArm">
+              <property name="title">
+               <string>Арматура</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_9">
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_7">
+                 <item>
+                  <widget class="QTableView" name="tableViewArm"/>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="pageContoursTable">
+         <layout class="QVBoxLayout" name="verticalLayout_18">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_13">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <widget class="QTableView" name="tableViewContour"/>
+              </item>
+              <item>
+               <widget class="QGraphicsView" name="graphicsViewContour"/>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="pageArmInstallsTable">
+         <layout class="QVBoxLayout" name="verticalLayout_19">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_14">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <widget class="QTableView" name="tableViewArmInstall"/>
+              </item>
+              <item>
+               <widget class="QGraphicsView" name="graphicsViewArmInstall"/>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="pageNodesTable">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <widget class="QTableView" name="tableViewNodes"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="pageFesTable">
+         <layout class="QVBoxLayout" name="verticalLayout_15">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_10">
+            <item>
+             <widget class="QTableView" name="tableViewFes"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="pageElementsTable">
+         <layout class="QVBoxLayout" name="verticalLayout_16">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_11">
+            <item>
+             <widget class="QTableView" name="tableViewElements"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="pageSections">
+         <layout class="QVBoxLayout" name="verticalLayout_17">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_12">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_21">
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QTableView" name="tableViewSections">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_20">
+                <item>
+                 <widget class="QGraphicsView" name="graphicsViewSection"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;Файл</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSaveAs"/>
+    <addaction name="actionExport"/>
+    <addaction name="separator"/>
+    <addaction name="actionSettings"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuAdd">
+    <property name="title">
+     <string>Исходные данные</string>
+    </property>
+    <widget class="QMenu" name="menuAddLoads">
+     <property name="title">
+      <string>Усилия</string>
+     </property>
+     <addaction name="actionAddLoadsC"/>
+     <addaction name="actionAddLoadsCL"/>
+     <addaction name="actionAddLoadsN"/>
+     <addaction name="actionAddLoadsNL"/>
+    </widget>
+    <widget class="QMenu" name="menuAddSection">
+     <property name="title">
+      <string>Сечения</string>
+     </property>
+     <widget class="QMenu" name="menuAddContour">
+      <property name="title">
+       <string>Контур</string>
+      </property>
+      <addaction name="actionAddContourRect"/>
+      <addaction name="actionAddContourCircle"/>
+      <addaction name="actionAddContourTavr"/>
+      <addaction name="actionAddContourDvtavr"/>
+      <addaction name="actionAddContourRing"/>
+      <addaction name="actionAddContourRectTube"/>
+      <addaction name="actionAddContourUser"/>
+     </widget>
+     <widget class="QMenu" name="menuAddArmInstallation">
+      <property name="title">
+       <string>Армирование</string>
+      </property>
+      <addaction name="actionAddArmInstallation3x3"/>
+      <addaction name="actionAddArmInstallationUnit"/>
+     </widget>
+     <addaction name="menuAddContour"/>
+     <addaction name="menuAddArmInstallation"/>
+     <addaction name="actionAddSection"/>
+    </widget>
+    <widget class="QMenu" name="menuAddMaterials">
+     <property name="title">
+      <string>Материалы</string>
+     </property>
+     <addaction name="actionAddBeton"/>
+     <addaction name="actionAddArm"/>
+    </widget>
+    <addaction name="menuAddMaterials"/>
+    <addaction name="menuAddLoads"/>
+    <addaction name="menuAddSection"/>
+    <addaction name="actionAddNode"/>
+    <addaction name="actionAddFe"/>
+    <addaction name="actionAddElement"/>
+    <addaction name="actionCrackResist"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>Вид</string>
+    </property>
+    <widget class="QMenu" name="menuViewTables">
+     <property name="title">
+      <string>Таблицы</string>
+     </property>
+     <addaction name="actionViewTableMaterials"/>
+     <addaction name="actionViewTableNodes"/>
+     <addaction name="actionViewTableLoads"/>
+     <addaction name="actionViewTableSections"/>
+     <addaction name="actionViewTableFes"/>
+     <addaction name="actionViewTableElements"/>
+    </widget>
+    <addaction name="menuViewTables"/>
+    <addaction name="actionViewSections"/>
+    <addaction name="actionViewResults"/>
+   </widget>
+   <widget class="QMenu" name="menuCalculation">
+    <property name="title">
+     <string>Расчет</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuResults">
+    <property name="title">
+     <string>Результаты</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Помощь</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuImport">
+    <property name="title">
+     <string>Импорт</string>
+    </property>
+    <widget class="QMenu" name="menuDXF">
+     <property name="title">
+      <string>DXF</string>
+     </property>
+     <addaction name="actionDXFContour"/>
+     <addaction name="actionArmInstall"/>
+     <addaction name="actionSection"/>
+    </widget>
+    <addaction name="menuDXF"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuView"/>
+   <addaction name="menuAdd"/>
+   <addaction name="menuCalculation"/>
+   <addaction name="menuResults"/>
+   <addaction name="menuImport"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionNew">
+   <property name="text">
+    <string>Новый</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Сохранить</string>
+   </property>
+  </action>
+  <action name="actionSaveAs">
+   <property name="text">
+    <string>Сохранить как</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Экспорт</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Параметры</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Выход</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string>Арматура</string>
+   </property>
+  </action>
+  <action name="actionAddFe">
+   <property name="text">
+    <string>Участки</string>
+   </property>
+  </action>
+  <action name="actionAddElement">
+   <property name="text">
+    <string>Элементы</string>
+   </property>
+  </action>
+  <action name="actionAddLoadsC">
+   <property name="text">
+    <string>Расчетные</string>
+   </property>
+  </action>
+  <action name="actionAddLoadsCL">
+   <property name="text">
+    <string>Расчетные длительные</string>
+   </property>
+  </action>
+  <action name="actionAddLoadsN">
+   <property name="text">
+    <string>Нормативные</string>
+   </property>
+  </action>
+  <action name="actionAddLoadsNL">
+   <property name="text">
+    <string>Нормативные длительные</string>
+   </property>
+  </action>
+  <action name="action_17">
+   <property name="text">
+    <string>Участки</string>
+   </property>
+  </action>
+  <action name="actionViewTableNodes">
+   <property name="text">
+    <string>Узлы</string>
+   </property>
+  </action>
+  <action name="actionViewTableFes">
+   <property name="text">
+    <string>Участки</string>
+   </property>
+  </action>
+  <action name="actionViewTableSections">
+   <property name="text">
+    <string>Сечения</string>
+   </property>
+  </action>
+  <action name="actionViewTableLoads">
+   <property name="text">
+    <string>Усилия</string>
+   </property>
+  </action>
+  <action name="actionViewTableElements">
+   <property name="text">
+    <string>Элементы</string>
+   </property>
+  </action>
+  <action name="action_23">
+   <property name="text">
+    <string>Сечение</string>
+   </property>
+  </action>
+  <action name="action_25">
+   <property name="text">
+    <string>Арматура</string>
+   </property>
+  </action>
+  <action name="actionAddNode">
+   <property name="text">
+    <string>Узлы</string>
+   </property>
+  </action>
+  <action name="actionEditSections">
+   <property name="text">
+    <string>Сечения</string>
+   </property>
+  </action>
+  <action name="actionEditNodes">
+   <property name="text">
+    <string>Узел</string>
+   </property>
+  </action>
+  <action name="actionAddBeton">
+   <property name="text">
+    <string>Бетон</string>
+   </property>
+  </action>
+  <action name="actionAddArm">
+   <property name="text">
+    <string>Арматура</string>
+   </property>
+  </action>
+  <action name="actionEditBeton">
+   <property name="text">
+    <string>Бетон</string>
+   </property>
+  </action>
+  <action name="actionEditArm">
+   <property name="text">
+    <string>Арматура</string>
+   </property>
+  </action>
+  <action name="actionEditFes">
+   <property name="text">
+    <string>Участок</string>
+   </property>
+  </action>
+  <action name="actionEditElements">
+   <property name="text">
+    <string>Элемент</string>
+   </property>
+  </action>
+  <action name="actionEditLoadsC">
+   <property name="text">
+    <string>Расчетные</string>
+   </property>
+  </action>
+  <action name="actionEditLoadsCL">
+   <property name="text">
+    <string>Расчетные длительные</string>
+   </property>
+  </action>
+  <action name="actionEditLoadsN">
+   <property name="text">
+    <string>Нормативные</string>
+   </property>
+  </action>
+  <action name="actionEditLoadsNL">
+   <property name="text">
+    <string>Нормативные длительные</string>
+   </property>
+  </action>
+  <action name="actionViewTableMaterials">
+   <property name="text">
+    <string>Материалы</string>
+   </property>
+  </action>
+  <action name="actionViewSections">
+   <property name="text">
+    <string>Сечения</string>
+   </property>
+  </action>
+  <action name="actionViewResults">
+   <property name="text">
+    <string>Результаты</string>
+   </property>
+  </action>
+  <action name="actionAddContourRect">
+   <property name="text">
+    <string>Прямоугольник</string>
+   </property>
+  </action>
+  <action name="actionAddContourCircle">
+   <property name="text">
+    <string>Круг</string>
+   </property>
+  </action>
+  <action name="actionAddContourTavr">
+   <property name="text">
+    <string>Тавр</string>
+   </property>
+  </action>
+  <action name="actionAddContourDvtavr">
+   <property name="text">
+    <string>Двутавр</string>
+   </property>
+  </action>
+  <action name="actionAddContourRing">
+   <property name="text">
+    <string>Кольцо</string>
+   </property>
+  </action>
+  <action name="actionAddContourRectTube">
+   <property name="text">
+    <string>Полый прямоугольник</string>
+   </property>
+  </action>
+  <action name="actionAddContourUser">
+   <property name="text">
+    <string>Произвольный</string>
+   </property>
+  </action>
+  <action name="actionAddArmInstallation3x3">
+   <property name="text">
+    <string>3 x 3 расстановка</string>
+   </property>
+  </action>
+  <action name="actionAddArmInstallationUnit">
+   <property name="text">
+    <string>Одиночная установка</string>
+   </property>
+  </action>
+  <action name="actionAddSection">
+   <property name="text">
+    <string>Сечение</string>
+   </property>
+  </action>
+  <action name="actionDXFContour">
+   <property name="text">
+    <string>Контур</string>
+   </property>
+  </action>
+  <action name="actionArmInstall">
+   <property name="text">
+    <string>Армирование</string>
+   </property>
+  </action>
+  <action name="actionSection">
+   <property name="text">
+    <string>Сечение</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Открыть</string>
+   </property>
+  </action>
+  <action name="actionCrackResist">
+   <property name="text">
+    <string>Трещиностойкость</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

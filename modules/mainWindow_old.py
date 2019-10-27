@@ -3,15 +3,12 @@ import sys
 import copy
 import pickle
 from PyQt5 import QtCore, QtWidgets, QtGui
-from designer.formMainWindow import Ui_MainWindow
 from modules.project import Project
-from modules.betonSelector import BetonEditorWindow
-from modules.armSelector import ArmEditorWindow
-from modules.rectContourWindow import RectContourWindow
-from modules.loadsEditor import LoadsEditorWindow
+from modules.betonSelector import BetonCreator, BetonEditor
+from modules.armSelector import ArmCreator, ArmEditor
+from designer.formMainWindow import Ui_MainWindowForm
 
 w = None
-
 
 class MyWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -23,60 +20,98 @@ class MyWidget(QtWidgets.QWidget):
         self.box.addWidget(self.button)
         self.setLayout(self.box)
 
-
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.prj: Project = Project('temp')
-        self.loadsModel = None
-        self.betonsModel = None
-        self.armsModel = None
-
-        self.form = Ui_MainWindow()
-        ui = self.form
+        ui = Ui_MainWindowForm()
         ui.setupUi(self)
-        ui.actionNew.triggered.connect(self.on_new)
-        ui.actionOpen.triggered.connect(self.on_open)
-        ui.actionSave.triggered.connect(self.on_save)
-        ui.actionSaveAs.triggered.connect(self.on_saveas)
-        ui.actionQuit.triggered.connect(self.on_quit)
-        ui.actionAddBeton.triggered.connect(self.on_createBeton)
-        ui.actionEditBeton.triggered.connect(self.on_editBeton)
-        ui.actionAddArm.triggered.connect(self.on_createArm)
-        ui.actionEditArm.triggered.connect(self.on_editArm)
-        ui.actionViewTableMaterials.triggered.connect(self.createMaterialsView)
-        ui.actionAddContourRect.triggered.connect(self.on_createRectContour)
-        ui.actionAddLoadsC.triggered.connect(self.on_loadsEditorC)
-        ui.actionAddLoadsCL.triggered.connect(self.on_loadsEditorCL)
-        ui.actionAddLoadsN.triggered.connect(self.on_loadsEditorN)
-        ui.actionAddLoadsNL.triggered.connect(self.on_loadsEditorNL)
+        self.w = MyWidget()
+        self.setCentralWidget(self.w)
+        self.w.button.clicked.connect(self.on_clicked)
+        self.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+        self.setIconSize(QtCore.QSize(32, 32))
+        self.setWindowTitle("Concrete Organizer")
+        # self.setAnimated(False)
+        self.setDockOptions(QtWidgets.QMainWindow.AnimatedDocks |
+                            QtWidgets.QMainWindow.AllowTabbedDocks)
+        self.setTabPosition(QtCore.Qt.LeftDockWidgetArea,
+                            QtWidgets.QTabWidget.North)
+        self.setTabPosition(QtCore.Qt.RightDockWidgetArea,
+                            QtWidgets.QTabWidget.North)
+        self.setTabShape(QtWidgets.QTabWidget.Triangular)
+        self.add_menu()
+        # self.add_tool_bar()
+        # self.add_dock_widget()
+        self.statusBar().showMessage("Текст в строке состояния")
 
-    def on_createRectContour(self):
-        w = RectContourWindow(self)
-        w.show()
+    def add_menu(self):
+        self.menuFile = QtWidgets.QMenu("&Файл")
+        self.actNew = QtWidgets.QAction("Создать", None)
+        self.actNew.setShortcut(QtGui.QKeySequence.New)
+        self.actNew.triggered.connect(self.on_new)
+        self.actOpen = QtWidgets.QAction("Открыть", None)
+        self.actOpen.setShortcut(QtGui.QKeySequence.Open)
+        self.actOpen.triggered.connect(self.on_open)
+        self.actSave = QtWidgets.QAction("Сохранить", None)
+        self.actSave.setShortcut(QtGui.QKeySequence.Save)
+        self.actSave.triggered.connect(self.on_save)
+        self.actSaveAs = QtWidgets.QAction("Сохранить как", None)
+        self.actSaveAs.setShortcut(QtGui.QKeySequence.SaveAs)
+        self.actSaveAs.triggered.connect(self.on_saveas)
+        self.actSettings = QtWidgets.QAction("Параметры", None)
+        self.actSettings.triggered.connect(self.on_settings)
+        self.actExit = QtWidgets.QAction("Выход", None)
+        self.actExit.setShortcut(QtGui.QKeySequence.Quit)
+        self.actExit.triggered.connect(self.on_quit)
 
-    def on_loadsEditorC(self):
-        w = LoadsEditorWindow(self)
-        w.form.comboBoxLoadsType.setEnabled(False)
-        w.show()
-    
-    def on_loadsEditorCL(self):
-        w = LoadsEditorWindow(self)
-        w.form.comboBoxLoadsType.setCurrentIndex(1)
-        w.form.comboBoxLoadsType.setEnabled(False)
-        w.show()
-    
-    def on_loadsEditorN(self):
-        w = LoadsEditorWindow(self)
-        w.form.comboBoxLoadsType.setCurrentIndex(2)
-        w.form.comboBoxLoadsType.setEnabled(False)
-        w.show()
-    
-    def on_loadsEditorNL(self):
-        w = LoadsEditorWindow(self)
-        w.form.comboBoxLoadsType.setCurrentIndex(3)
-        w.form.comboBoxLoadsType.setEnabled(False)
-        w.show()
+        self.menuFile.addAction(self.actNew)
+        self.menuFile.addAction(self.actOpen)
+        self.menuFile.addAction(self.actSave)
+        self.menuFile.addAction(self.actSaveAs)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actSettings)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actExit)
+
+        self.menuMaterials = QtWidgets.QMenu("&Материалы")
+        self.menuBeton = self.menuMaterials.addMenu('Бетон')
+        self.menuArm = self.menuMaterials.addMenu('Арматура')
+        # self.menuMaterials.addAction(self.actGroupBeton)
+
+        self.actNewBeton = QtWidgets.QAction("Добавить бетон")
+        self.actNewBeton.triggered.connect(self.on_createBeton)
+        self.menuBeton.addAction(self.actNewBeton)
+        self.actEditBeton = QtWidgets.QAction("Изменить бетон")
+        self.actEditBeton.triggered.connect(self.on_editBeton)
+        self.menuBeton.addAction(self.actEditBeton)
+
+        self.actNewArm = QtWidgets.QAction("Добавить арматуру")
+        self.actNewArm.triggered.connect(self.on_createArm)
+        self.menuArm.addAction(self.actNewArm)
+        self.actEditArm = QtWidgets.QAction("Изменить арматуру")
+        self.actEditArm.triggered.connect(self.on_editArm)
+        self.menuArm.addAction(self.actEditArm)
+        
+        self.menuMaterials.addSeparator()
+        self.actTables = QtWidgets.QAction("Таблицы")
+        self.menuMaterials.addAction(self.actTables)
+
+        self.menuImport = QtWidgets.QMenu("&Импорт")
+        self.menuElems = QtWidgets.QMenu("&Элементы")
+        self.menuFes = QtWidgets.QMenu("&Участки")
+        self.menuSect = QtWidgets.QMenu("&Поперечные сечения")
+        self.menuCrackResist = QtWidgets.QMenu("&Трещиностойкость")
+        self.menuHelp = QtWidgets.QMenu("&Помощь")
+
+        self.menuBar().addMenu(self.menuFile)
+        self.menuBar().addMenu(self.menuMaterials)
+        self.menuBar().addMenu(self.menuImport)
+        self.menuBar().addMenu(self.menuElems)
+        self.menuBar().addMenu(self.menuFes)
+        self.menuBar().addMenu(self.menuSect)
+        self.menuBar().addMenu(self.menuCrackResist)
+        self.menuBar().addMenu(self.menuHelp)
 
     def on_open(self):
         f = QtWidgets.QFileDialog.getOpenFileName(parent=self, caption=" Открыть проект ",
@@ -160,78 +195,28 @@ class MainWindow(QtWidgets.QMainWindow):
         print(result)
 
     def on_createBeton(self):
-        w = BetonEditorWindow(self)
-        w.show()
-
-    def on_editBeton(self):
-        w = BetonEditorWindow(self)
+        w = BetonCreator(self.prj, self)
         w.setWindowModality(QtCore.Qt.WindowModal)
         w.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         w.setFixedWidth(300)
         w.show()
 
-    def createBetonsModel(self):
-        model = QtGui.QStandardItemModel()
-        # model.setRowCount(len(self.materials['b']))
-        # model.setColumnCount(5)
-        v = ["Ниже 40%", "40% - 75%", "Выше 75%"]
-        d = ['Трехлинейная', 'Двухлинейная']
-
-        for bet in self.prj.materials['b'].values():
-            L = []
-            L.append(QtGui.QStandardItem(str(bet.number)))
-            L.append(QtGui.QStandardItem('B'+str(bet.classB)))
-            L.append(QtGui.QStandardItem(d[bet.type-1]))
-            L.append(QtGui.QStandardItem(v[bet.vlag-1]))
-            L.append(QtGui.QStandardItem(str(bet.gamma_b_3)))
-            L.append(QtGui.QStandardItem(bet.descript))
-            model.appendRow(L)
-
-        model.setHorizontalHeaderLabels(
-            ["№", "Класс", "Диаграмма", "Среда", "γb3", "Описание"])
-        self.betonsModel = model
-
-    def createArmsModel(self):
-        model = QtGui.QStandardItemModel()
-        for arm in self.prj.materials['a'].values():
-            L = []
-            L.append(QtGui.QStandardItem(str(arm.number)))
-            L.append(QtGui.QStandardItem(arm.classA))
-            L.append(QtGui.QStandardItem(str(arm.gamma_s)))
-            L.append(QtGui.QStandardItem(arm.descript))
-            model.appendRow(L)
-
-        model.setHorizontalHeaderLabels(
-            ["№", "Класс", "γs", "Описание"])
-        self.armsModel = model
-
-    def createMaterialsView(self):
-        def on_clickedBet(ind):
-            bts = list(self.prj.materials['b'].values())
-            self.prj.selectedBeton = bts[ind.row()]
-        def on_clickedArm(ind):
-            arms = list(self.prj.materials['a'].values())
-            self.prj.selectedArm = arms[ind.row()]
-        self.createBetonsModel()
-        self.createArmsModel()
-        ui = self.form
-        ui.tableViewBeton.setModel(self.betonsModel)
-        ui.tableViewBeton.clicked["QModelIndex"].connect(on_clickedBet)
-        ui.tableViewArm.setModel(self.armsModel)
-        ui.tableViewArm.clicked["QModelIndex"].connect(on_clickedArm)
-        hHeader = ui.tableViewBeton.horizontalHeader()
-        hHeader.setHighlightSections(True)
-        hHeader = ui.tableViewArm.horizontalHeader()
-        #hHeader.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-        hHeader.setHighlightSections(True)
-        ui.stackedWidget.setCurrentIndex(1)
+    def on_editBeton(self):
+        w = BetonEditor(self.prj, self)
+        w.setWindowModality(QtCore.Qt.WindowModal)
+        w.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+        w.setFixedWidth(300)
+        w.show()
 
     def on_createArm(self):
-        w = ArmEditorWindow(self)
+        w = ArmCreator(self.prj, self)
+        w.setWindowModality(QtCore.Qt.WindowModal)
+        w.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+        w.setFixedWidth(300)
         w.show()
 
     def on_editArm(self):
-        w = ArmEditorWindow(self)
+        w = ArmEditor(self.prj, self)
         w.setWindowModality(QtCore.Qt.WindowModal)
         w.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         w.setFixedWidth(300)
