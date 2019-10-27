@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Users\palex\YandexDisk\Документы\Python Scripts\NDM_python\designer\formLoadsEditor.ui'
+# Form implementation generated from reading ui file 'd:\YandexDisk\Документы\Python Scripts\NDM_python\designer\formLoadsEditor.ui'
 #
-# Created by: PyQt5 UI code generator 5.13.0
+# Created by: PyQt5 UI code generator 5.13.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -96,6 +96,7 @@ class Ui_FormLoadsCreator(object):
         self.horizontalLayout.addWidget(self.label_3)
         self.doubleSpinBoxN = QtWidgets.QDoubleSpinBox(FormLoadsCreator)
         self.doubleSpinBoxN.setAlignment(QtCore.Qt.AlignCenter)
+        self.doubleSpinBoxN.setDecimals(4)
         self.doubleSpinBoxN.setMaximum(99999.99)
         self.doubleSpinBoxN.setSingleStep(0.1)
         self.doubleSpinBoxN.setObjectName("doubleSpinBoxN")
@@ -115,6 +116,7 @@ class Ui_FormLoadsCreator(object):
         self.horizontalLayout.addWidget(self.label_2)
         self.doubleSpinBoxMx = QtWidgets.QDoubleSpinBox(FormLoadsCreator)
         self.doubleSpinBoxMx.setAlignment(QtCore.Qt.AlignCenter)
+        self.doubleSpinBoxMx.setDecimals(4)
         self.doubleSpinBoxMx.setMaximum(9999.99)
         self.doubleSpinBoxMx.setSingleStep(0.1)
         self.doubleSpinBoxMx.setObjectName("doubleSpinBoxMx")
@@ -134,6 +136,7 @@ class Ui_FormLoadsCreator(object):
         self.horizontalLayout.addWidget(self.label)
         self.doubleSpinBoxMy = QtWidgets.QDoubleSpinBox(FormLoadsCreator)
         self.doubleSpinBoxMy.setAlignment(QtCore.Qt.AlignCenter)
+        self.doubleSpinBoxMy.setDecimals(4)
         self.doubleSpinBoxMy.setMaximum(9999.99)
         self.doubleSpinBoxMy.setSingleStep(0.1)
         self.doubleSpinBoxMy.setObjectName("doubleSpinBoxMy")
@@ -166,15 +169,11 @@ class Ui_FormLoadsCreator(object):
         self.verticalLayout.addWidget(self.line_5)
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
-        self.label_6 = QtWidgets.QLabel(FormLoadsCreator)
-        self.label_6.setObjectName("label_6")
-        self.horizontalLayout_7.addWidget(self.label_6)
+        self.pushButtonTypeConvert = QtWidgets.QPushButton(FormLoadsCreator)
+        self.pushButtonTypeConvert.setObjectName("pushButtonTypeConvert")
+        self.horizontalLayout_7.addWidget(self.pushButtonTypeConvert)
         self.comboBoxTypeConversion = QtWidgets.QComboBox(FormLoadsCreator)
         self.comboBoxTypeConversion.setObjectName("comboBoxTypeConversion")
-        self.comboBoxTypeConversion.addItem("")
-        self.comboBoxTypeConversion.addItem("")
-        self.comboBoxTypeConversion.addItem("")
-        self.comboBoxTypeConversion.addItem("")
         self.horizontalLayout_7.addWidget(self.comboBoxTypeConversion)
         self.verticalLayout.addLayout(self.horizontalLayout_7)
         self.line_4 = QtWidgets.QFrame(FormLoadsCreator)
@@ -199,7 +198,7 @@ class Ui_FormLoadsCreator(object):
         self.verticalLayout_2.addLayout(self.verticalLayout)
 
         self.retranslateUi(FormLoadsCreator)
-        self.comboBoxTypeConversion.setCurrentIndex(0)
+        self.comboBoxTypeConversion.setCurrentIndex(-1)
         QtCore.QMetaObject.connectSlotsByName(FormLoadsCreator)
 
     def retranslateUi(self, FormLoadsCreator):
@@ -220,9 +219,5 @@ class Ui_FormLoadsCreator(object):
         self.pushButtonAddLoad.setText(_translate("FormLoadsCreator", "Добавить усилие"))
         self.pushButtonEditLoad.setText(_translate("FormLoadsCreator", "Изменить усилие"))
         self.pushButtonDelLoad.setText(_translate("FormLoadsCreator", "Удалить усилие"))
-        self.label_6.setText(_translate("FormLoadsCreator", "Преобразовать в:"))
-        self.comboBoxTypeConversion.setItemText(0, _translate("FormLoadsCreator", "Расчетные"))
-        self.comboBoxTypeConversion.setItemText(1, _translate("FormLoadsCreator", "Расчетные длительные"))
-        self.comboBoxTypeConversion.setItemText(2, _translate("FormLoadsCreator", "Нормативные"))
-        self.comboBoxTypeConversion.setItemText(3, _translate("FormLoadsCreator", "Нормативные длительные"))
+        self.pushButtonTypeConvert.setText(_translate("FormLoadsCreator", "Преобразовать в:"))
         self.pushButtonDelLodsGroup.setText(_translate("FormLoadsCreator", "Удалить группу"))

@@ -175,6 +175,9 @@
          <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
+         <property name="decimals">
+          <number>4</number>
+         </property>
          <property name="maximum">
           <double>99999.990000000005239</double>
          </property>
@@ -210,6 +213,9 @@
          <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
+         <property name="decimals">
+          <number>4</number>
+         </property>
          <property name="maximum">
           <double>9999.989999999999782</double>
          </property>
@@ -244,6 +250,9 @@
         <widget class="QDoubleSpinBox" name="doubleSpinBoxMy">
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="decimals">
+          <number>4</number>
          </property>
          <property name="maximum">
           <double>9999.989999999999782</double>
@@ -300,7 +309,7 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_7">
        <item>
-        <widget class="QLabel" name="label_6">
+        <widget class="QPushButton" name="pushButtonTypeConvert">
          <property name="text">
           <string>Преобразовать в:</string>
          </property>
@@ -309,28 +318,8 @@
        <item>
         <widget class="QComboBox" name="comboBoxTypeConversion">
          <property name="currentIndex">
-          <number>0</number>
+          <number>-1</number>
          </property>
-         <item>
-          <property name="text">
-           <string>Расчетные</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Расчетные длительные</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Нормативные</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Нормативные длительные</string>
-          </property>
-         </item>
         </widget>
        </item>
       </layout>

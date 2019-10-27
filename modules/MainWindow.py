@@ -41,9 +41,7 @@ class MainWindow(QtWidgets.QMainWindow):
         ui.actionSaveAs.triggered.connect(self.on_saveas)
         ui.actionQuit.triggered.connect(self.on_quit)
         ui.actionAddBeton.triggered.connect(self.on_createBeton)
-        ui.actionEditBeton.triggered.connect(self.on_editBeton)
         ui.actionAddArm.triggered.connect(self.on_createArm)
-        ui.actionEditArm.triggered.connect(self.on_editArm)
         ui.actionViewTableMaterials.triggered.connect(self.createMaterialsView)
         ui.actionAddContourRect.triggered.connect(self.on_createRectContour)
         ui.actionAddLoadsC.triggered.connect(self.on_loadsEditorC)
@@ -161,13 +159,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_createBeton(self):
         w = BetonEditorWindow(self)
-        w.show()
-
-    def on_editBeton(self):
-        w = BetonEditorWindow(self)
-        w.setWindowModality(QtCore.Qt.WindowModal)
-        w.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
-        w.setFixedWidth(300)
         w.show()
 
     def createBetonsModel(self):

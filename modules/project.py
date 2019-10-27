@@ -23,6 +23,7 @@ class Project:
         self.selectedFe = None
         self.selectedSect = None
         self.selectedLoadsGroup = None
+        self.selectedLoad = None
 
     def getElementsNumbers(self):
         if len(self.elements) == 0:
