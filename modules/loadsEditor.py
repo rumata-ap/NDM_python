@@ -10,6 +10,7 @@ class LoadsEditorWindow(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent, QtCore.Qt.Window)
         self.prj: Project = parent.prj
         self.loadsModel = None
+        self.selIdxLoad = -1
 
         self.form = Ui_FormLoadsCreator()
         ui = self.form
@@ -23,6 +24,7 @@ class LoadsEditorWindow(QtWidgets.QWidget):
         ui.pushButtonTypeConvert.clicked.connect(self.on_convetGroup)
 
     def createTableView(self):
+        self.selIdxLoad = -1
         lst = ['c', 'cl', 'n', 'nl']
         idx = self.form.comboBoxLoadsType.currentIndex()
 
@@ -34,9 +36,19 @@ class LoadsEditorWindow(QtWidgets.QWidget):
             self.form.doubleSpinBoxN.setValue(sell.N)
             self.form.doubleSpinBoxMx.setValue(sell.Mx)
             self.form.doubleSpinBoxMy.setValue(sell.My)
+            self.selIdxLoad = ind.row()
 
         model = QtGui.QStandardItemModel()
 
+        if self.form.cbNumsLoadsGroups.currentText() == '':
+            model.clear()
+            model.setHorizontalHeaderLabels(
+                ["N, кН", "Mx, кНм", "My, кНм", "N*, кН", "Mx*, кНм", "My*, кНм"])
+            self.form.tableViewLoads.setModel(model)
+            return
+
+        model.setHorizontalHeaderLabels(
+            ["N, кН", "Mx, кНм", "My, кНм", "N*, кН", "Mx*, кНм", "My*, кНм"])
         loads = self.prj.loads[lst[idx]][int(
             self.form.cbNumsLoadsGroups.currentText())]
         for load in loads:
@@ -51,8 +63,6 @@ class LoadsEditorWindow(QtWidgets.QWidget):
 
             model.appendRow(L)
 
-        model.setHorizontalHeaderLabels(
-            ["N, кН", "Mx, кНм", "My, кНм", "N*, кН", "Mx*, кНм", "My*, кНм"])
         self.form.tableViewLoads.setModel(model)
         self.form.tableViewLoads.clicked["QModelIndex"].connect(on_clickedLoad)
         self.loadsModel = model
@@ -65,19 +75,106 @@ class LoadsEditorWindow(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def on_editLoad(self):
-        pass
+        if self.selIdxLoad == -1:
+            return
+        lst = ['c', 'cl', 'n', 'nl']
+        idx = self.form.comboBoxLoadsType.currentIndex()
+
+        if len(self.prj.loads[lst[idx]]) == 0:
+            self.message()
+        else:
+            grp: list = self.prj.loads[lst[idx]][int(
+                self.form.cbNumsLoadsGroups.currentText())]
+            tempLoad: LoadNDM = grp[self.selIdxLoad]
+            tempLoad.N = self.form.doubleSpinBoxN.value()
+            tempLoad.Mx = self.form.doubleSpinBoxMx.value()
+            tempLoad.My = self.form.doubleSpinBoxMy.value()
+            tempLoad.N_ = self.form.doubleSpinBoxN.value()
+            tempLoad.Mx_ = self.form.doubleSpinBoxMx.value()
+            tempLoad.My_ = self.form.doubleSpinBoxMy.value()
+            self.prj.selectedLoadsGroup = grp
+            self.createTableView()
 
     @QtCore.pyqtSlot()
     def on_delLoad(self):
-        pass
+        if self.selIdxLoad == -1:
+            return
+        lst = ['c', 'cl', 'n', 'nl']
+        idx = self.form.comboBoxLoadsType.currentIndex()
+
+        if len(self.prj.loads[lst[idx]]) == 0:
+            self.message()
+        else:
+            grp: list = self.prj.loads[lst[idx]][int(
+                self.form.cbNumsLoadsGroups.currentText())]
+            del grp[self.selIdxLoad]
+            self.prj.selectedLoadsGroup = grp
+            self.createTableView()
 
     @QtCore.pyqtSlot()
     def on_delLoadsGroup(self):
-        pass
+        lst = ['c', 'cl', 'n', 'nl']
+        idx = self.form.comboBoxLoadsType.currentIndex()
+
+        if len(self.prj.loads[lst[idx]]) == 0:
+            return
+
+        del self.prj.loads[lst[idx]][int(
+            self.form.cbNumsLoadsGroups.currentText())]
+
+        keys = list(self.prj.loads[lst[idx]].keys())
+        self.form.cbNumsLoadsGroups.clear()
+        self.form.cbNumsLoadsGroups.addItems(list(map(lambda x: str(x), keys)))
+        self.createTableView()
 
     @QtCore.pyqtSlot()
     def on_convetGroup(self):
-        pass
+        lst = ['c', 'cl', 'n', 'nl']
+        idx1 = self.form.comboBoxLoadsType.currentIndex()
+        idx2 = self.form.comboBoxTypeConversion.currentIndex()
+
+        def convert(k):
+            res = copy.deepcopy(self.prj.loads[lst[idx1]])
+            for grp in res.values():
+                for load in grp:
+                    load: LoadNDM
+                    load.N = load.N * k
+                    load.Mx = load.Mx * k
+                    load.My = load.My * k
+                    load.My_ = load.My_ * k
+                    load.Mx_ = load.Mx_ * k
+                    load.N_ = load.N_ * k
+            return res
+        kd = self.form.doubleSpinBoxKd.value()
+        kdl = self.form.doubleSpinBoxKdl.value()
+        if idx1 == 0:
+            if idx2 == 0:
+                self.prj.loads['cl'] = convert(kdl)
+            elif idx2 == 1:
+                self.prj.loads['n'] = convert(1 / kd)
+            elif idx2 == 2:
+                self.prj.loads['nl'] = convert(1 / kd * kdl)
+        if idx1 == 1:
+            if idx2 == 0:
+                self.prj.loads['c'] = convert(1 / kdl)
+            elif idx2 == 1:
+                self.prj.loads['n'] = convert((1 / kd)*(1 / kdl))
+            elif idx2 == 2:
+                self.prj.loads['nl'] = convert(1 / kd)
+        if idx1 == 2:
+            if idx2 == 0:
+                self.prj.loads['c'] = convert(kd)
+            elif idx2 == 1:
+                self.prj.loads['cl'] = convert(kd*kdl)
+            elif idx2 == 2:
+                self.prj.loads['nl'] = convert(kdl)
+        if idx1 == 3:
+            if idx2 == 0:
+                self.prj.loads['c'] = convert(kd*(1/kdl))
+            elif idx2 == 1:
+                self.prj.loads['cl'] = convert(kd)
+            elif idx2 == 2:
+                self.prj.loads['n'] = convert(1/kdl)
 
     @QtCore.pyqtSlot()
     def on_createLoad(self):
@@ -106,9 +203,11 @@ class LoadsEditorWindow(QtWidgets.QWidget):
         idx = self.form.comboBoxLoadsType.currentIndex()
 
         if len(self.prj.loads[lst[idx]]) == 0:
-            self.prj.loads[lst[idx]][1] = []
-            self.prj.selectedLoadsGroup = self.prj.loads[lst[idx]][1]
-            self.form.cbNumsLoadsGroups.addItem('1')
+            self.prj.loads[lst[idx]][self.form.spinBoxNumGroup.value()] = []
+            self.prj.selectedLoadsGroup = self.prj.loads[lst[idx]
+                                                         ][self.form.spinBoxNumGroup.value()]
+            self.form.cbNumsLoadsGroups.addItem(
+                self.form.spinBoxNumGroup.text())
             self.form.spinBoxNumGroup.stepUp()
         else:
             self.prj.loads[lst[idx]][self.form.spinBoxNumGroup.value()] = [
@@ -132,7 +231,7 @@ class LoadsEditorWindow(QtWidgets.QWidget):
         self.createTableView()
 
     def showEvent(self, е):
-    
+
         if self.form.comboBoxLoadsType.currentIndex() == 0:
             lst = ['Расчетные длительные',
                    'Нормативные', 'Нормативные длительные']
