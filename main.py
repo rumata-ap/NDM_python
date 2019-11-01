@@ -94,10 +94,6 @@ def main():
 def GUI():
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
-    # ui = Ui_MainWindow()
-    # ui.setupUi(window)
-    #window.setWindowTitle("Класс QMainWindow")
-    #window.resize(680, 70)
 
     window.show()
     sys.exit(app.exec_())
