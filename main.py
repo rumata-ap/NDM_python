@@ -90,20 +90,10 @@ def main():
         inp = input('>>> ')
 
 
-# class MyWindow(QtWidgets.QMainWindow):
-#     def __init__(self, parent=None):
-#         QtWidgets.QMainWindow.__init__(self, parent)
-#         self.prj: Project = Project('temp')
-#         ui = Ui_MainWindowForm()
-#         ui.setupUi(self)
 
 def GUI():
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
-    # ui = Ui_MainWindow()
-    # ui.setupUi(window)
-    #window.setWindowTitle("Класс QMainWindow")
-    #window.resize(680, 70)
 
     window.show()
     sys.exit(app.exec_())
