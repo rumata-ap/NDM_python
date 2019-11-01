@@ -90,12 +90,6 @@ def main():
         inp = input('>>> ')
 
 
-# class MyWindow(QtWidgets.QMainWindow):
-#     def __init__(self, parent=None):
-#         QtWidgets.QMainWindow.__init__(self, parent)
-#         self.prj: Project = Project('temp')
-#         ui = Ui_MainWindowForm()
-#         ui.setupUi(self)
 
 def GUI():
     app = QtWidgets.QApplication(sys.argv)
