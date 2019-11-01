@@ -17,6 +17,10 @@ class LoadsEditorWindow(QtWidgets.QWidget):
         ui.pushButtonAddLoadsGroup.clicked.connect(self.on_createLoadsGroup)
         ui.pushButtonAddLoad.clicked.connect(self.on_createLoad)
         ui.cbNumsLoadsGroups.activated.connect(self.on_changeNum)
+        ui.pushButtonDelLoad.clicked.connect(self.on_delLoad)
+        ui.pushButtonEditLoad.clicked.connect(self.on_editLoad)
+        ui.pushButtonDelLodsGroup.clicked.connect(self.on_delLoadsGroup)
+        ui.pushButtonTypeConvert.clicked.connect(self.on_convetGroup)
 
     def createTableView(self):
         lst = ['c', 'cl', 'n', 'nl']
@@ -58,6 +62,22 @@ class LoadsEditorWindow(QtWidgets.QWidget):
                                           "Невозможно добавить усилие. \nСначала добавьте группу усилий.",
                                           buttons=QtWidgets.QMessageBox.Close,
                                           defaultButton=QtWidgets.QMessageBox.Close)
+
+    @QtCore.pyqtSlot()
+    def on_editLoad(self):
+        pass
+
+    @QtCore.pyqtSlot()
+    def on_delLoad(self):
+        pass
+
+    @QtCore.pyqtSlot()
+    def on_delLoadsGroup(self):
+        pass
+
+    @QtCore.pyqtSlot()
+    def on_convetGroup(self):
+        pass
 
     @QtCore.pyqtSlot()
     def on_createLoad(self):
