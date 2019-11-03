@@ -138,12 +138,12 @@ class LoadsEditorWindow(QtWidgets.QWidget):
             for grp in res.values():
                 for load in grp:
                     load: LoadNDM
-                    load.N = load.N * k
-                    load.Mx = load.Mx * k
-                    load.My = load.My * k
-                    load.My_ = load.My_ * k
-                    load.Mx_ = load.Mx_ * k
-                    load.N_ = load.N_ * k
+                    load.N = round(load.N * k, 4)
+                    load.Mx = round(load.Mx * k, 4)
+                    load.My = round(load.My * k, 4)
+                    load.My_ = round(load.My_ * k, 4)
+                    load.Mx_ = round(load.Mx_ * k, 4)
+                    load.N_ = round(load.N_ * k, 4)
             return res
         kd = self.form.doubleSpinBoxKd.value()
         kdl = self.form.doubleSpinBoxKdl.value()

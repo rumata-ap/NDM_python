@@ -43,39 +43,46 @@ class MainWindow(QtWidgets.QMainWindow):
         ui.actionAddBeton.triggered.connect(self.on_createBeton)
         ui.actionAddArm.triggered.connect(self.on_createArm)
         ui.actionViewTableMaterials.triggered.connect(self.createMaterialsView)
+        ui.actionViewTableLoads.triggered.connect(self.createLoadsView)
         ui.actionAddContourRect.triggered.connect(self.on_createRectContour)
         ui.actionAddLoadsC.triggered.connect(self.on_loadsEditorC)
         ui.actionAddLoadsCL.triggered.connect(self.on_loadsEditorCL)
         ui.actionAddLoadsN.triggered.connect(self.on_loadsEditorN)
         ui.actionAddLoadsNL.triggered.connect(self.on_loadsEditorNL)
 
+    @QtCore.pyqtSlot()
     def on_createRectContour(self):
         w = RectContourWindow(self)
         w.show()
 
+    @QtCore.pyqtSlot()
     def on_loadsEditorC(self):
         w = LoadsEditorWindow(self)
         w.form.comboBoxLoadsType.setEnabled(False)
         w.show()
-    
+
+    @QtCore.pyqtSlot()
     def on_loadsEditorCL(self):
         w = LoadsEditorWindow(self)
         w.form.comboBoxLoadsType.setCurrentIndex(1)
         w.form.comboBoxLoadsType.setEnabled(False)
         w.show()
-    
+
+    @QtCore.pyqtSlot()
     def on_loadsEditorN(self):
         w = LoadsEditorWindow(self)
         w.form.comboBoxLoadsType.setCurrentIndex(2)
         w.form.comboBoxLoadsType.setEnabled(False)
         w.show()
-    
+
+    @QtCore.pyqtSlot()
     def on_loadsEditorNL(self):
         w = LoadsEditorWindow(self)
         w.form.comboBoxLoadsType.setCurrentIndex(3)
         w.form.comboBoxLoadsType.setEnabled(False)
         w.show()
 
+    @QtCore.pyqtSlot()
     def on_open(self):
         f = QtWidgets.QFileDialog.getOpenFileName(parent=self, caption=" Открыть проект ",
                                                   filter="All (*) ;;NDMProjects (*.ndm) ",
@@ -90,6 +97,7 @@ class MainWindow(QtWidgets.QMainWindow):
         print("Открыт проект " + f[0])
         self.statusBar().showMessage(f[0])
 
+    @QtCore.pyqtSlot()
     def on_new(self):
         result = QtWidgets.QMessageBox.warning(self, "Внимание",
                                                "Сохранить внесенные изменения в текущий проект?",
@@ -109,6 +117,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.prj = Project(file[0])
         print("Создан новый проект " + file[0])
 
+    @QtCore.pyqtSlot()
     def on_save(self):
 
         if self.prj.name == 'temp' or self.prj.name == '':
@@ -127,6 +136,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 pickle.dump(self.prj, file)
             print("Текущий проект сохранен " + self.prj.name)
 
+    @QtCore.pyqtSlot()
     def on_saveas(self):
         file = QtWidgets.QFileDialog.getSaveFileName(parent=self, caption=" Сохранить проект ",
                                                      filter="All (*) ;;NDMProjects (*.ndm) ",
@@ -140,6 +150,7 @@ class MainWindow(QtWidgets.QMainWindow):
             pickle.dump(self.prj, file, protocol=4)
         print("Текущий проект сохранен как " + self.prj.name)
 
+    @QtCore.pyqtSlot()
     def on_quit(self):
         result = QtWidgets.QMessageBox.warning(self, "Внимание!",
                                                "Вы закрываете приложение без сохранения введенных данных \nСохранить внесенные изменения в текущий проект?",
@@ -196,10 +207,12 @@ class MainWindow(QtWidgets.QMainWindow):
             ["№", "Класс", "γs", "Описание"])
         self.armsModel = model
 
+    @QtCore.pyqtSlot()
     def createMaterialsView(self):
         def on_clickedBet(ind):
             bts = list(self.prj.materials['b'].values())
             self.prj.selectedBeton = bts[ind.row()]
+
         def on_clickedArm(ind):
             arms = list(self.prj.materials['a'].values())
             self.prj.selectedArm = arms[ind.row()]
@@ -213,14 +226,106 @@ class MainWindow(QtWidgets.QMainWindow):
         hHeader = ui.tableViewBeton.horizontalHeader()
         hHeader.setHighlightSections(True)
         hHeader = ui.tableViewArm.horizontalHeader()
-        #hHeader.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        # hHeader.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         hHeader.setHighlightSections(True)
         ui.stackedWidget.setCurrentIndex(1)
 
+    @QtCore.pyqtSlot()
+    def createLoadsView(self):
+        modelC = QtGui.QStandardItemModel()
+        modelCL = QtGui.QStandardItemModel()
+        modelN = QtGui.QStandardItemModel()
+        modelNL = QtGui.QStandardItemModel()
+        modelC.setHorizontalHeaderLabels(
+            ['Группа', "N, кН", "Mx, кНм", "My, кНм", "N*, кН", "Mx*, кНм", "My*, кНм"])
+        modelCL.setHorizontalHeaderLabels(
+            ['Группа', "N, кН", "Mx, кНм", "My, кНм", "N*, кН", "Mx*, кНм", "My*, кНм"])
+        modelN.setHorizontalHeaderLabels(
+            ['Группа', "N, кН", "Mx, кНм", "My, кНм", "N*, кН", "Mx*, кНм", "My*, кНм"])
+        modelNL.setHorizontalHeaderLabels(
+            ['Группа', "N, кН", "Mx, кНм", "My, кНм", "N*, кН", "Mx*, кНм", "My*, кНм"])
+
+        loadsGrp = list(self.prj.loads['c'].values())
+        loadsGrpKeys = list(self.prj.loads['c'].keys())
+        i = 0
+        for loads in loadsGrp:
+            for load in loads:
+                L = []
+                # load:LoadNDM
+                L.append(QtGui.QStandardItem(str(loadsGrpKeys[i])))
+                L.append(QtGui.QStandardItem(str(load.N)))
+                L.append(QtGui.QStandardItem(str(load.Mx)))
+                L.append(QtGui.QStandardItem(str(load.My)))
+                L.append(QtGui.QStandardItem(str(load.N_)))
+                L.append(QtGui.QStandardItem(str(load.Mx_)))
+                L.append(QtGui.QStandardItem(str(load.My_)))
+                modelC.appendRow(L)
+            i = i + 1
+
+        loadsGrp = list(self.prj.loads['cl'].values())
+        loadsGrpKeys = list(self.prj.loads['cl'].keys())
+        i = 0
+        for loads in loadsGrp:
+            for load in loads:
+                L = []
+                # load:LoadNDM
+                L.append(QtGui.QStandardItem(str(loadsGrpKeys[i])))
+                L.append(QtGui.QStandardItem(str(load.N)))
+                L.append(QtGui.QStandardItem(str(load.Mx)))
+                L.append(QtGui.QStandardItem(str(load.My)))
+                L.append(QtGui.QStandardItem(str(load.N_)))
+                L.append(QtGui.QStandardItem(str(load.Mx_)))
+                L.append(QtGui.QStandardItem(str(load.My_)))
+                modelCL.appendRow(L)
+            i = i + 1
+
+        loadsGrp = list(self.prj.loads['n'].values())
+        loadsGrpKeys = list(self.prj.loads['n'].keys())
+        i = 0
+        for loads in loadsGrp:
+            for load in loads:
+                L = []
+                # load:LoadNDM
+                L.append(QtGui.QStandardItem(str(loadsGrpKeys[i])))
+                L.append(QtGui.QStandardItem(str(load.N)))
+                L.append(QtGui.QStandardItem(str(load.Mx)))
+                L.append(QtGui.QStandardItem(str(load.My)))
+                L.append(QtGui.QStandardItem(str(load.N_)))
+                L.append(QtGui.QStandardItem(str(load.Mx_)))
+                L.append(QtGui.QStandardItem(str(load.My_)))
+                modelN.appendRow(L)
+            i = i + 1
+
+        loadsGrp = list(self.prj.loads['nl'].values())
+        loadsGrpKeys = list(self.prj.loads['nl'].keys())
+        i = 0
+        for loads in loadsGrp:
+            for load in loads:
+                L = []
+                # load:LoadNDM
+                L.append(QtGui.QStandardItem(str(loadsGrpKeys[i])))
+                L.append(QtGui.QStandardItem(str(load.N)))
+                L.append(QtGui.QStandardItem(str(load.Mx)))
+                L.append(QtGui.QStandardItem(str(load.My)))
+                L.append(QtGui.QStandardItem(str(load.N_)))
+                L.append(QtGui.QStandardItem(str(load.Mx_)))
+                L.append(QtGui.QStandardItem(str(load.My_)))
+                modelNL.appendRow(L)
+            i = i + 1        
+        
+        ui = self.form
+        ui.tableViewC.setModel(modelC)
+        ui.tableViewCL.setModel(modelCL)
+        ui.tableViewN.setModel(modelN)
+        ui.tableViewNL.setModel(modelNL)
+        ui.stackedWidget.setCurrentIndex(2)
+
+    @QtCore.pyqtSlot()
     def on_createArm(self):
         w = ArmEditorWindow(self)
         w.show()
 
+    @QtCore.pyqtSlot()
     def on_editArm(self):
         w = ArmEditorWindow(self)
         w.setWindowModality(QtCore.Qt.WindowModal)
@@ -228,6 +333,7 @@ class MainWindow(QtWidgets.QMainWindow):
         w.setFixedWidth(300)
         w.show()
 
+    @QtCore.pyqtSlot()
     def on_settings(self):
         pass
 

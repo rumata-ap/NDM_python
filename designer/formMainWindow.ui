@@ -19,6 +19,9 @@
      <layout class="QVBoxLayout" name="mainVLayout">
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
         <widget class="QWidget" name="pageStart"/>
         <widget class="QWidget" name="pageMaterials">
          <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -57,6 +60,105 @@
              </widget>
             </item>
            </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="pageLoads">
+         <layout class="QVBoxLayout" name="verticalLayout_23">
+          <item>
+           <widget class="QToolBox" name="toolBoxLoads">
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="pageC">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>762</width>
+               <height>397</height>
+              </rect>
+             </property>
+             <attribute name="label">
+              <string>Расчетные</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_27">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_22">
+                <item>
+                 <widget class="QTableView" name="tableViewC"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="pageCL">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>98</width>
+               <height>91</height>
+              </rect>
+             </property>
+             <attribute name="label">
+              <string>Расчетные длительные</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_28">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_24">
+                <item>
+                 <widget class="QTableView" name="tableViewCL"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="pageN">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>98</width>
+               <height>91</height>
+              </rect>
+             </property>
+             <attribute name="label">
+              <string>Нормативные</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_29">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_25">
+                <item>
+                 <widget class="QTableView" name="tableViewN"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="pageNL">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>762</width>
+               <height>397</height>
+              </rect>
+             </property>
+             <attribute name="label">
+              <string>Нормативные длительные</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_30">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_26">
+                <item>
+                 <widget class="QTableView" name="tableViewNL"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -177,7 +279,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>18</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -371,11 +473,6 @@
     <string>Нормативные длительные</string>
    </property>
   </action>
-  <action name="action_17">
-   <property name="text">
-    <string>Участки</string>
-   </property>
-  </action>
   <action name="actionViewTableNodes">
    <property name="text">
     <string>Узлы</string>
@@ -399,16 +496,6 @@
   <action name="actionViewTableElements">
    <property name="text">
     <string>Элементы</string>
-   </property>
-  </action>
-  <action name="action_23">
-   <property name="text">
-    <string>Сечение</string>
-   </property>
-  </action>
-  <action name="action_25">
-   <property name="text">
-    <string>Арматура</string>
    </property>
   </action>
   <action name="actionAddNode">
